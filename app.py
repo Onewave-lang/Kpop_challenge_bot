@@ -77,6 +77,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("1. Угадай группу", callback_data="menu_play")],
         [InlineKeyboardButton("2. Показать все группы", callback_data="menu_show_all")],
         [InlineKeyboardButton("3. Найти участника", callback_data="menu_find_member")],
+        [InlineKeyboardButton("4. Режим обучения", callback_data="menu_learn")],
     ]
     return InlineKeyboardMarkup(kb)
 
@@ -86,23 +87,68 @@ def back_keyboard() -> InlineKeyboardMarkup:
 def in_game_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("🏁 Прервать игру", callback_data="menu_back")]])
 
+# ---- callback "префиксы" для режима обучения
+CB_LEARN_PICK = "learn_pick:"       # выбор группы
+CB_LEARN_TRAIN = "learn_train:"     # перейти к тренировке по группе
+CB_LEARN_MENU = "menu_learn"        # показать меню обучения
+CB_LEARN_EXIT = "learn_exit"        # выйти из обучения в главное меню
+
+def groups_keyboard() -> InlineKeyboardMarkup:
+    # Клавиатура со списком групп для обучения (2 в ряд)
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for key in correct_grnames.keys():
+        title = correct_grnames[key]
+        row.append(InlineKeyboardButton(title, callback_data=f"{CB_LEARN_PICK}{key}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    # Кнопка "Назад"
+    buttons.append([InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")])
+    return InlineKeyboardMarkup(buttons)
+
+def learn_after_list_keyboard(group_key: str) -> InlineKeyboardMarkup:
+    # После вывода списка участников — предложить тренироваться или вернуться
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("▶️ Тренировать эту группу", callback_data=f"{CB_LEARN_TRAIN}{group_key}")],
+        [InlineKeyboardButton("⬅️ Выбрать другую группу", callback_data=CB_LEARN_MENU)],
+        [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+    ])
+
+def learn_in_session_keyboard() -> InlineKeyboardMarkup:
+    # Во время тренировки — только выход/назад
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🏁 Завершить обучение", callback_data=CB_LEARN_MENU)],
+        [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+    ])
+
 # =======================
 #  СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ
 # =======================
 # user_data схема:
 # {
-#   "mode": "idle" | "find" | "game",
+#   "mode": "idle" | "find" | "game" | "learn_menu" | "learn_train",
 #   "game": {
 #       "members": list[str],
 #       "index": int,
 #       "score": int,
 #       "current_member": str | None
+#   },
+#   "learn": {
+#       "group_key": str,
+#       "to_learn": list[str],
+#       "known": set[str],
+#       "current": str | None
 #   }
 # }
 
 def reset_state(context: ContextTypes.DEFAULT_TYPE) -> None:
     context.user_data.clear()
     context.user_data["mode"] = "idle"
+
+# ----- Игра «Угадай группу»
 
 def start_game(context: ContextTypes.DEFAULT_TYPE) -> None:
     all_members = dictionary_to_list(kpop_groups)
@@ -131,6 +177,49 @@ def finish_text(context: ContextTypes.DEFAULT_TYPE) -> str:
     score = g.get("score", 0)
     return f"Игра окончена! Ты угадал {score} из 10."
 
+# ----- Режим обучения
+
+def start_learn_session(context: ContextTypes.DEFAULT_TYPE, group_key: str) -> None:
+    members = list(kpop_groups[group_key])
+    random.shuffle(members)  # случайный порядок
+    context.user_data["mode"] = "learn_train"
+    context.user_data["learn"] = {
+        "group_key": group_key,
+        "to_learn": members,
+        "known": set(),    # уже верно названные имена (в нижнем регистре)
+        "current": None,
+    }
+
+def pick_next_to_guess(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
+    data = context.user_data.get("learn", {})
+    to_learn: List[str] = data.get("to_learn", [])
+    known: set[str] = data.get("known", set())  # type: ignore
+    remaining = [m for m in to_learn if m.lower() not in known]
+    if not remaining:
+        return None
+    member = random.choice(remaining)
+    data["current"] = member
+    context.user_data["learn"] = data
+    return member
+
+def mask_name(name: str) -> str:
+    # Маска вида **** с одной случайной открытой буквой
+    if not name:
+        return ""
+    idxs = [i for i, ch in enumerate(name) if ch.isalpha()]
+    if not idxs:
+        return "*" * len(name)
+    hint_pos = random.choice(idxs)
+    masked = []
+    for i, ch in enumerate(name):
+        if i == hint_pos:
+            masked.append(ch)  # показываем букву как есть
+        elif ch.isalpha():
+            masked.append("*")
+        else:
+            masked.append(ch)  # пробелы/знаки оставляем как есть
+    return "".join(masked)
+
 # =======================
 #  ХЕНДЛЕРЫ PTB
 # =======================
@@ -147,11 +236,13 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     await query.answer()
     data = query.data
 
+    # --- Назад в меню
     if data == "menu_back":
         reset_state(context)
         await query.edit_message_text("Меню:", reply_markup=menu_keyboard())
         return
 
+    # --- Игра «Угадай группу»
     if data == "menu_play":
         start_game(context)
         member = next_question(context)
@@ -166,16 +257,17 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
         return
 
+    # --- Показать все группы
     if data == "menu_show_all":
-        lines = []
+        lines: List[str] = []
         for key, members in kpop_groups.items():
             line = f"*{correct_grnames[key]}*: {', '.join(members)}"
             lines.append(line)
         text = "Все группы:\n\n" + "\n".join(lines)
-        # 4096 — лимит Telegram на длину текста, но мы сильно меньше
-        await query.edit_message_text(text, reply_markup=back_keyboard(),parse_mode="Markdown")
+        await query.edit_message_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
         return
 
+    # --- Найти участника
     if data == "menu_find_member":
         context.user_data["mode"] = "find"
         await query.edit_message_text(
@@ -185,10 +277,68 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
         return
 
+    # === Режим обучения: меню выбора группы
+    if data == CB_LEARN_MENU or data == "menu_learn":
+        context.user_data["mode"] = "learn_menu"
+        await query.edit_message_text(
+            "Выберите k-pop группу для изучения:",
+            reply_markup=groups_keyboard(),
+        )
+        return
+
+    # === Режим обучения: выбранная группа — показать состав и предложить тренироваться
+    if data.startswith(CB_LEARN_PICK):
+        group_key = data.split(":", 1)[1]
+        if group_key not in kpop_groups:
+            await query.edit_message_text("Группа не найдена.", reply_markup=groups_keyboard())
+            return
+        members = kpop_groups[group_key]
+        lines = [f"{correct_grnames[group_key]}: {', '.join(members)}"]
+        text = "Состав группы:\n\n" + "\n".join(lines)
+        await query.edit_message_text(
+            text,
+            reply_markup=learn_after_list_keyboard(group_key),
+        )
+        return
+
+    # === Режим обучения: начать тренировку по группе
+    if data.startswith(CB_LEARN_TRAIN):
+        group_key = data.split(":", 1)[1]
+        if group_key not in kpop_groups:
+            await query.edit_message_text("Группа не найдена.", reply_markup=groups_keyboard())
+            return
+        start_learn_session(context, group_key)
+        member = pick_next_to_guess(context)
+        if member is None:
+            await query.edit_message_text(
+                "Кажется, вы уже знаете всех участников этой группы!",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("⬅️ Выбрать другую группу", callback_data=CB_LEARN_MENU)],
+                    [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+                ]),
+            )
+            return
+        masked = mask_name(member)
+        await query.edit_message_text(
+            f"Группа: {correct_grnames[group_key]}\n"
+            f"Угадайте участника: <code>{masked}</code>\n\n"
+            f"(введите имя сообщением)",
+            parse_mode="HTML",
+            reply_markup=learn_in_session_keyboard(),
+        )
+        return
+
+    # === Режим обучения: явный выход
+    if data == CB_LEARN_EXIT:
+        reset_state(context)
+        await query.edit_message_text("Меню:", reply_markup=menu_keyboard())
+        return
+
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     mode = context.user_data.get("mode", "idle")
     text = (update.message.text or "").strip()
 
+    # --- Найти участника
     if mode == "find":
         member = text.title()
         for group_key, members in kpop_groups.items():
@@ -203,6 +353,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text("Такой участник не найден", reply_markup=back_keyboard())
         return
 
+    # --- Игра «Угадай группу»
     if mode == "game":
         g = context.user_data.get("game", {})
         member = g.get("current_member")
@@ -225,7 +376,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if answer_key in kpop_groups and member in kpop_groups[answer_key]:
             is_correct = True
         else:
-            mapped_key = PRETTY_TO_KEY.get(answer_key)  # например, "blackpink" -> "blackpink"
+            mapped_key = PRETTY_TO_KEY.get(answer_key)
             if mapped_key and member in kpop_groups[mapped_key]:
                 is_correct = True
 
@@ -249,6 +400,65 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             )
         return
 
+    # --- Режим обучения: пользователь вводит ответы
+    if mode == "learn_train":
+        learn = context.user_data.get("learn", {})
+        group_key: Optional[str] = learn.get("group_key")
+        current: Optional[str] = learn.get("current")
+
+        # Страховка: если текущего нет — выбираем
+        if not current:
+            current = pick_next_to_guess(context)
+            if not current:
+                title = correct_grnames.get(group_key or "", group_key or "")
+                await update.message.reply_text(
+                    f"Поздравляем! Вы смогли назвать по памяти всех участников группы {title}! 🎉",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("📚 Учить другую группу", callback_data=CB_LEARN_MENU)],
+                        [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+                    ]),
+                )
+                reset_state(context)
+                return
+
+        answer = (text or "").strip().lower()
+        correct = current.lower()
+
+        known: set[str] = learn.get("known", set())  # type: ignore
+
+        if answer == correct:
+            known.add(correct)
+            learn["known"] = known
+            context.user_data["learn"] = learn
+            feedback = "Верно! ✅"
+        else:
+            feedback = f"Неверно. Правильный ответ: {current}"
+
+        # Следующий кандидат среди неотгаданных
+        next_member = pick_next_to_guess(context)
+        title = correct_grnames.get(group_key or "", group_key or "")
+
+        if next_member is None:
+            await update.message.reply_text(
+                f"{feedback}\n\nПоздравляем! Вы смогли назвать по памяти всех участников группы {title}! 🎉",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("📚 Учить другую группу", callback_data=CB_LEARN_MENU)],
+                    [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+                ]),
+            )
+            reset_state(context)
+            return
+
+        masked = mask_name(next_member)
+        await update.message.reply_text(
+            f"{feedback}\n\nГруппа: {title}\n"
+            f"Следующий участник: <code>{masked}</code>",
+            parse_mode="HTML",
+            reply_markup=learn_in_session_keyboard(),
+        )
+        return
+
+    # --- По умолчанию: показать меню
     await update.message.reply_text("Меню:", reply_markup=menu_keyboard())
 
 async def on_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
