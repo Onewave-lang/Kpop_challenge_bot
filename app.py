@@ -160,7 +160,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             return
         await query.edit_message_text(
             f"К какой группе относится: {member}?\n\n"
-            "Напиши название группы (например, *twice*, *blackpink* ...).",
+            "Напиши название группы.",
             reply_markup=in_game_keyboard(),
             parse_mode="Markdown",
         )
@@ -169,17 +169,17 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     if data == "menu_show_all":
         lines = []
         for key, members in kpop_groups.items():
-            line = f"{correct_grnames[key]}: {', '.join(members)}"
+            line = f"*{correct_grnames[key]}*: {', '.join(members)}"
             lines.append(line)
         text = "Все группы:\n\n" + "\n".join(lines)
         # 4096 — лимит Telegram на длину текста, но мы сильно меньше
-        await query.edit_message_text(text, reply_markup=back_keyboard())
+        await query.edit_message_text(text, reply_markup=back_keyboard(),parse_mode="Markdown")
         return
 
     if data == "menu_find_member":
         context.user_data["mode"] = "find"
         await query.edit_message_text(
-            "Введите имя участника (например, *Momo*):",
+            "Введите имя участника k-pop группы:",
             reply_markup=back_keyboard(),
             parse_mode="Markdown",
         )
@@ -194,8 +194,9 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         for group_key, members in kpop_groups.items():
             if member in members:
                 await update.message.reply_text(
-                    f"{member} — участник группы {correct_grnames[group_key]}",
+                    f"{member} — участник группы *{correct_grnames[group_key]}*",
                     reply_markup=back_keyboard(),
+                    parse_mode="Markdown"
                 )
                 break
         else:
