@@ -2,7 +2,7 @@ import os
 import random
 from contextlib import asynccontextmanager
 from http import HTTPStatus
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set, Iterable
 
 from fastapi import FastAPI, Request, Response
 
@@ -190,6 +190,88 @@ def start_learn_session(context: ContextTypes.DEFAULT_TYPE, group_key: str) -> N
         "current": None,
     }
 
+def _alpha_positions(s: str) -> List[int]:
+    return [i for i, ch in enumerate(s) if ch.isalpha()]
+
+def _matches_with_reveals(candidate: str, target: str, reveals: Set[int]) -> bool:
+    """Проверяет, подходит ли имя candidate под маску target,
+    где в позициях из reveals буквы должны совпасть (регистронезависимо),
+    в остальных позициях:
+      - если в target буква -> в candidate тоже должна быть буква (любая),
+      - если в target не буква -> символы должны совпасть 1-в-1.
+    Длины строк должны совпадать.
+    """
+    if len(candidate) != len(target):
+        return False
+    for i, t_ch in enumerate(target):
+        c_ch = candidate[i]
+        if t_ch.isalpha():
+            if i in reveals:
+                if c_ch.lower() != t_ch.lower():
+                    return False
+            else:
+                if not c_ch.isalpha():
+                    return False
+        else:
+            if c_ch != t_ch:
+                return False
+    return True
+
+def _build_mask(target: str, reveals: Set[int]) -> str:
+    out = []
+    for i, ch in enumerate(target):
+        if ch.isalpha() and i not in reveals:
+            out.append("*")
+        else:
+            out.append(ch)
+    return "".join(out)
+
+def _unique_with_reveals(group: Iterable[str], target: str, reveals: Set[int]) -> bool:
+    """Есть ли в группе ровно один кандидат, удовлетворяющий заданным открытым позициям?"""
+    cnt = 0
+    for cand in group:
+        if _matches_with_reveals(cand, target, reveals):
+            cnt += 1
+            if cnt > 1:
+                return False
+    return cnt == 1
+
+def make_unique_mask_for_group_member(name: str, group_members: List[str]) -> str:
+    """
+    Делает маску для 'name' так, чтобы:
+      - сначала пытаемся с 1 открытой буквой (случайная позиция);
+      - если по одной букве остаётся >1 кандидата внутри группы — подбираем вторую позицию,
+        добиваясь ровно одного кандидата; перебираем все возможные вторые позиции.
+    Возвращает строку-маску (звёздочки и открытые буквы), НЕ меняет регистр символов.
+    """
+    alpha_idx = _alpha_positions(name)
+    if not alpha_idx:
+        return name  # ничего маскировать
+
+    # случайная первая позиция
+    first = random.choice(alpha_idx)
+    one_reveal = {first}
+
+    # если уже уникально — оставляем одну букву
+    if _unique_with_reveals(group_members, name, one_reveal):
+        return _build_mask(name, one_reveal)
+
+    # иначе подбираем вторую букву
+    remaining_positions = [i for i in alpha_idx if i != first]
+    random.shuffle(remaining_positions)
+
+    for second in remaining_positions:
+        reveals = {first, second}
+        if _unique_with_reveals(group_members, name, reveals):
+            return _build_mask(name, reveals)
+
+    # Теоретически сюда не попадём (имена в группе уникальны),
+    # но на всякий случай — раскроем две первые буквы-алф позиции.
+    fallback = {alpha_idx[0]}
+    if len(alpha_idx) > 1:
+        fallback.add(alpha_idx[1])
+    return _build_mask(name, fallback)
+
 def pick_next_to_guess(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     data = context.user_data.get("learn", {})
     to_learn: List[str] = data.get("to_learn", [])
@@ -201,24 +283,6 @@ def pick_next_to_guess(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     data["current"] = member
     context.user_data["learn"] = data
     return member
-
-def mask_name(name: str) -> str:
-    # Маска вида **** с одной случайной открытой буквой
-    if not name:
-        return ""
-    idxs = [i for i, ch in enumerate(name) if ch.isalpha()]
-    if not idxs:
-        return "*" * len(name)
-    hint_pos = random.choice(idxs)
-    masked = []
-    for i, ch in enumerate(name):
-        if i == hint_pos:
-            masked.append(ch)  # показываем букву как есть
-        elif ch.isalpha():
-            masked.append("*")
-        else:
-            masked.append(ch)  # пробелы/знаки оставляем как есть
-    return "".join(masked)
 
 # =======================
 #  ХЕНДЛЕРЫ PTB
@@ -318,7 +382,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 ]),
             )
             return
-        masked = mask_name(member)
+        masked = make_unique_mask_for_group_member(member, kpop_groups[group_key])
         await query.edit_message_text(
             f"Группа: {correct_grnames[group_key]}\n"
             f"Угадайте участника: <code>{masked}</code>\n\n"
@@ -449,7 +513,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             reset_state(context)
             return
 
-        masked = mask_name(next_member)
+        masked = make_unique_mask_for_group_member(next_member, kpop_groups[group_key])  # type: ignore
         await update.message.reply_text(
             f"{feedback}\n\nГруппа: {title}\n"
             f"Следующий участник: <code>{masked}</code>",
