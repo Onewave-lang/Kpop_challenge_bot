@@ -403,19 +403,6 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await launch_game(query, context, start_ai_game)
         return
 
-    if data == "menu_play_adv":
-        start_ai_game(context)
-        member = next_question(context)
-        if member is None:
-            await query.edit_message_text(finish_text(context), reply_markup=back_keyboard())
-            return
-        await query.edit_message_text(
-            f"К какой группе относится: {member}?\n\nНапиши название группы.",
-            reply_markup=in_game_keyboard(),
-            parse_mode="Markdown",
-        )
-        return
-
     # --- Показать все группы
     if data == "menu_show_all":
         lines: List[str] = []
