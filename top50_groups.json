@@ -1,0 +1,104 @@
+{
+  "groups": [
+    {
+      "name": "BTS",
+      "members": ["Jin", "Suga", "JHope", "RM", "Jimin", "V", "Jungkook"]
+    },
+    {
+      "name": "BLACKPINK",
+      "members": ["Jisoo", "Jennie", "Rose", "Lisa"]
+    },
+    {
+      "name": "SEVENTEEN",
+      "members": ["SCoups", "Jeonghan", "Joshua", "Jun", "Hoshi", "Wonwoo", "Woozi", "DK", "Mingyu", "The8", "Seungkwan", "Vernon", "Dino"]
+    },
+    {
+      "name": "Stray Kids",
+      "members": ["BangChan", "LeeKnow", "Changbin", "Hyunjin", "Han", "Felix", "Seungmin", "IN"]
+    },
+    {
+      "name": "ENHYPEN",
+      "members": ["Heeseung", "Jay", "Jake", "Sunghoon", "Sunoo", "Jungwon", "Niki"]
+    },
+    {
+      "name": "TWICE",
+      "members": ["Nayeon", "Jeongyeon", "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu"]
+    },
+    {
+      "name": "ITZY",
+      "members": ["Yeji", "Lia", "Ryujin", "Chaeryeong", "Yuna"]
+    },
+    {
+      "name": "TXT",
+      "members": ["Soobin", "Yeonjun", "Beomgyu", "Taehyun", "HueningKai"]
+    },
+    {
+      "name": "NewJeans",
+      "members": ["Minji", "Hanni", "Danielle", "Haerin", "Hyein"]
+    },
+    {
+      "name": "LE SSERAFIM",
+      "members": ["Sakura", "KimChaewon", "HuhYunjin", "Kazuha", "HongEunchae"]
+    },
+    {
+      "name": "IVE",
+      "members": ["Yujin", "Gaeul", "Rei", "Wonyoung", "Liz", "Leeseo"]
+    },
+    {
+      "name": "aespa",
+      "members": ["Karina", "Winter", "Giselle", "Ningning"]
+    },
+    {
+      "name": "(G)I-DLE",
+      "members": ["Miyeon", "Minnie", "Yuqi", "Shuhua", "Soyeon"]
+    },
+    {
+      "name": "NMIXX",
+      "members": ["Lily", "Haewon", "Sullyoon", "Bae", "Kyujin"]
+    },
+    {
+      "name": "ATEEZ",
+      "members": ["Hongjoong", "Seonghwa", "Yunho", "Yeosang", "San", "Mingi", "Wooyoung", "Jongho"]
+    },
+    {
+      "name": "TREASURE",
+      "members": ["Hyunsuk", "Jihoon", "Yoshi", "Junkyu", "Jaehyuk", "Asahi", "Doyoung", "Haruto", "Jeongwoo", "Junghwan"]
+    },
+    {
+      "name": "BABYMONSTER",
+      "members": ["Ruka", "Pharita", "Asa", "Ahyeon", "Rami", "Chiquita"]
+    },
+    {
+      "name": "NCT",
+      "members": ["Taeil", "Johnny", "Taeyong", "Yuta", "Doyoung", "Ten", "Jaehyun", "Winwin", "Jungwoo", "Mark", "Xiaojun", "Hendery", "Renjun", "Jeno", "Haechan", "Jaemin", "Yangyang", "Chenle", "Jisung", "Kun", "Shotaro", "Sungchan"]
+    },
+    {
+      "name": "ZEROBASEONE",
+      "members": ["SungHanbin", "KimJiwoong", "ZhangHao", "SeokMatthew", "KimTaerae", "Ricky", "KimGyuvin", "ParkGunwook", "HanYujin"]
+    },
+    {
+      "name": "RIIZE",
+      "members": ["Shotaro", "Eunseok", "Sungchan", "Wonbin", "Seunghan", "Sohee", "Anton"]
+    },
+    {
+      "name": "THE BOYZ",
+      "members": ["Sangyeon", "Jacob", "Younghoon", "Hyunjae", "Juyeon", "Kevin", "New", "Q", "Juhaknyeon", "Sunwoo", "Eric"]
+    },
+    {
+      "name": "STAYC",
+      "members": ["Sumin", "Sieun", "Isa", "Seeun", "Yoon", "J"]
+    },
+    {
+      "name": "FIFTY FIFTY",
+      "members": ["Keena", "ChanelleMoon", "Yewon", "Hana", "Athena"]
+    },
+    {
+      "name": "BOYNEXTDOOR",
+      "members": ["Jaehyun", "Sungho", "Riwoo", "Taesan", "Leehan", "Woonhak"]
+    },
+    {
+      "name": "BIGBANG",
+      "members": ["GDragon", "Taeyang", "Daesung"]
+    }
+  ]
+}

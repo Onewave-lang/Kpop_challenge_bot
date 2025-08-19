@@ -46,11 +46,24 @@ AI_GROUPS_FILE = "top50_groups.json"
 
 
 def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
+    """Load pre-generated AI groups from ``path``.
+
+    The file can either contain a simple mapping of group names to members
+    or an object with a ``groups`` list where each entry has ``name`` and
+    ``members`` fields (as produced by the upstream AI script).
+    """
+
     file = Path(path)
-    if file.exists():
-        with file.open("r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+    if not file.exists():
+        return {}
+    with file.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Support both ``{"Group": [...]}`` and
+    # ``{"groups": [{"name": "Group", "members": [...]}]}`` structures.
+    if isinstance(data, dict) and "groups" in data and isinstance(data["groups"], list):
+        return {item["name"]: item["members"] for item in data["groups"]}
+    return data
 
 
 ai_kpop_groups: Optional[Dict[str, List[str]]] = load_ai_kpop_groups() or None
