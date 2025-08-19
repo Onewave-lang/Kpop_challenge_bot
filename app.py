@@ -249,6 +249,15 @@ def finish_text(context: ContextTypes.DEFAULT_TYPE) -> str:
     return f"Игра окончена! Ты угадал {score} из {total}."
 
 
+def progress_text(g: Dict[str, int]) -> str:
+    """Return a text snippet with current score and remaining questions."""
+    total = g.get("total", 0)
+    score = g.get("score", 0)
+    index = g.get("index", 0)
+    remaining = max(total - index, 0)
+    return f"Правильных ответов: {score} из {total}. Осталось вопросов: {remaining}."
+
+
 async def launch_game(
     query, context: ContextTypes.DEFAULT_TYPE, starter: Callable[[ContextTypes.DEFAULT_TYPE], bool]
 ) -> None:
@@ -552,16 +561,17 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         g["index"] = g.get("index", 0) + 1
         context.user_data["game"] = g
 
+        stats = progress_text(g)
         next_m = next_question(context)
         if next_m is None:
             await update.message.reply_text(
-                f"{feedback}\n\n" + finish_text(context),
+                f"{feedback}\n{stats}\n\n" + finish_text(context),
                 reply_markup=back_keyboard(),
             )
             reset_state(context)
         else:
             await update.message.reply_text(
-                f"{feedback}\n\nСледующий вопрос:\nК какой группе относится: {next_m}?",
+                f"{feedback}\n{stats}\n\nСледующий вопрос:\nК какой группе относится: {next_m}?",
                 reply_markup=in_game_keyboard(),
             )
         return
