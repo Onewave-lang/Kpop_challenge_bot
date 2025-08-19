@@ -4,7 +4,7 @@ import random
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Iterable
+from typing import Callable, Dict, Iterable, List, Optional, Set
 
 from fastapi import FastAPI, Request, Response
 
@@ -53,7 +53,7 @@ def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
     return {}
 
 
-ai_kpop_groups: Dict[str, List[str]] = load_ai_kpop_groups()
+ai_kpop_groups: Optional[Dict[str, List[str]]] = load_ai_kpop_groups() or None
 
 correct_grnames: Dict[str, str] = {
     "twice": "Twice",
@@ -93,13 +93,23 @@ def norm_group_key(s: str) -> str:
     """
     return " ".join(s.lower().split())
 
+def build_pretty_map(
+    groups: Dict[str, List[str]], names_map: Optional[Dict[str, str]] = None
+) -> Dict[str, str]:
+    """Строит словарь допустимых названий групп -> ключ словаря."""
+    mapping = {k.lower(): k for k in groups.keys()}
+    if names_map:
+        for key, pretty in names_map.items():
+            mapping[pretty.lower()] = key
+    return mapping
+
 def menu_keyboard() -> InlineKeyboardMarkup:
     kb = [
         [InlineKeyboardButton("1. Угадай группу", callback_data="menu_play")],
         [InlineKeyboardButton("2. Показать все группы", callback_data="menu_show_all")],
         [InlineKeyboardButton("3. Найти участника", callback_data="menu_find_member")],
         [InlineKeyboardButton("4. Режим обучения", callback_data="menu_learn")],
-        [InlineKeyboardButton("5. Угадай группу (ИИ)", callback_data="menu_play_adv")],
+        [InlineKeyboardButton("5. AI игра", callback_data="menu_ai_play")],
     ]
     return InlineKeyboardMarkup(kb)
 
@@ -172,38 +182,86 @@ def reset_state(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # ----- Игра «Угадай группу»
 
-def start_game(context: ContextTypes.DEFAULT_TYPE) -> None:
-    all_members = dictionary_to_list(kpop_groups)
-    random_members = random.sample(all_members, 10)
+def _init_game(
+    context: ContextTypes.DEFAULT_TYPE,
+    groups: Dict[str, List[str]],
+    names_map: Optional[Dict[str, str]] = None,
+) -> None:
+    all_members = dictionary_to_list(groups)
+    sample_size = min(10, len(all_members))
+    random_members = random.sample(all_members, sample_size)
     context.user_data["mode"] = "game"
     context.user_data["game"] = {
         "members": random_members,
         "index": 0,
         "score": 0,
         "current_member": None,
+        "groups": groups,
+        "pretty_map": build_pretty_map(groups, names_map),
+        "total": sample_size,
     }
 
 
-def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> None:
+def start_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    _init_game(context, kpop_groups, correct_grnames)
+    return True
+
+
+def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Инициализирует режим игры с ИИ."""
-    start_game(context)
+    if not ai_kpop_groups:
+        return False
+    _init_game(context, ai_kpop_groups)
     context.user_data["mode"] = "ai_game"
+    return True
 
 def next_question(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     g = context.user_data.get("game", {})
     idx: int = g.get("index", 0)
     members: List[str] = g.get("members", [])
-    if idx >= 10:
+    total: int = g.get("total", len(members))
+    if idx >= total:
         return None
     member = members[idx]
     g["current_member"] = member
     context.user_data["game"] = g
     return member
 
+
 def finish_text(context: ContextTypes.DEFAULT_TYPE) -> str:
     g = context.user_data.get("game", {})
     score = g.get("score", 0)
-    return f"Игра окончена! Ты угадал {score} из 10."
+    total = g.get("total", 10)
+    return f"Игра окончена! Ты угадал {score} из {total}."
+
+
+async def launch_game(
+    query, context: ContextTypes.DEFAULT_TYPE, starter: Callable[[ContextTypes.DEFAULT_TYPE], bool]
+) -> None:
+    """Запускает игру и отправляет первый вопрос.
+
+    Если `starter` вернул False, сообщаем пользователю об ошибке.
+    """
+    ok = starter(context)
+    if not ok:
+        await query.edit_message_text(
+            "AI-список групп недоступен. Попробуйте позже.",
+            reply_markup=back_keyboard(),
+        )
+        return
+
+    member = next_question(context)
+    if member is None:
+        await query.edit_message_text(
+            finish_text(context), reply_markup=back_keyboard()
+        )
+        return
+
+    await query.edit_message_text(
+        f"К какой группе относится: {member}?\n\nНапиши название группы.",
+        reply_markup=in_game_keyboard(),
+        parse_mode="Markdown",
+    )
 
 # ----- Режим обучения
 
@@ -336,17 +394,12 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     # --- Игра «Угадай группу»
     if data == "menu_play":
-        start_game(context)
-        member = next_question(context)
-        if member is None:
-            await query.edit_message_text(finish_text(context), reply_markup=back_keyboard())
-            return
-        await query.edit_message_text(
-            f"К какой группе относится: {member}?\n\n"
-            "Напиши название группы.",
-            reply_markup=in_game_keyboard(),
-            parse_mode="Markdown",
-        )
+        await launch_game(query, context, start_game)
+        return
+
+    # --- Игра с группами от ИИ
+    if data == "menu_ai_play":
+        await launch_game(query, context, start_ai_game)
         return
 
     if data == "menu_play_adv":
@@ -356,8 +409,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             await query.edit_message_text(finish_text(context), reply_markup=back_keyboard())
             return
         await query.edit_message_text(
-            f"К какой группе относится: {member}?\n\n",
-            "Напиши название группы.",
+            f"К какой группе относится: {member}?\n\nНапиши название группы.",
             reply_markup=in_game_keyboard(),
             parse_mode="Markdown",
         )
@@ -477,13 +529,15 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         # Допускаем 2 формы ввода: ключ ("twice") или красивое имя ("Blackpink")
         answer_key = norm_group_key(text)
+        groups = g.get("groups", kpop_groups)
+        pretty_map = g.get("pretty_map", PRETTY_TO_KEY)
         is_correct = False
 
-        if answer_key in kpop_groups and member in kpop_groups[answer_key]:
+        if answer_key in groups and member in groups[answer_key]:
             is_correct = True
         else:
-            mapped_key = PRETTY_TO_KEY.get(answer_key)
-            if mapped_key and member in kpop_groups[mapped_key]:
+            mapped_key = pretty_map.get(answer_key)
+            if mapped_key and member in groups.get(mapped_key, []):
                 is_correct = True
 
         feedback = "Верно!" if is_correct else "Неверно!"
