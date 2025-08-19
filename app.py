@@ -259,11 +259,16 @@ def progress_text(g: Dict[str, int]) -> str:
 
 
 async def launch_game(
-    query, context: ContextTypes.DEFAULT_TYPE, starter: Callable[[ContextTypes.DEFAULT_TYPE], bool]
+    query,
+    context: ContextTypes.DEFAULT_TYPE,
+    starter: Callable[[ContextTypes.DEFAULT_TYPE], bool],
+    intro_text: str | None = None,
 ) -> None:
     """Запускает игру и отправляет первый вопрос.
 
     Если `starter` вернул False, сообщаем пользователю об ошибке.
+    При наличии ``intro_text`` сначала выводит приветственное сообщение,
+    а затем отдельным сообщением отправляет первый вопрос.
     """
     ok = starter(context)
     if not ok:
@@ -285,11 +290,25 @@ async def launch_game(
         )
         return
 
-    await query.edit_message_text(
-        f"К какой группе относится: {member}?\n\nНапиши название группы.",
-        reply_markup=in_game_keyboard(),
-        parse_mode="Markdown",
-    )
+    question = f"К какой группе относится: {member}?\n\nНапиши название группы."
+
+    if intro_text:
+        await query.edit_message_text(
+            intro_text,
+            reply_markup=in_game_keyboard(),
+            parse_mode="Markdown",
+        )
+        await query.message.reply_text(
+            question,
+            reply_markup=in_game_keyboard(),
+            parse_mode="Markdown",
+        )
+    else:
+        await query.edit_message_text(
+            question,
+            reply_markup=in_game_keyboard(),
+            parse_mode="Markdown",
+        )
 
 # ----- Режим обучения
 
@@ -427,7 +446,13 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     # --- Игра с группами от ИИ
     if data == "menu_ai_play":
-        await launch_game(query, context, start_ai_game)
+        intro = (
+            "⚔️ Это продвинутый уровень! Сразись с искусственным интеллектом.\n"
+            "Тебя ждёт 10 вопросов о k-pop группах из топ-25 по популярности, "
+            "включающем как мужские, так и женские команды и подготовленном AI.\n"
+            "Попробуй набрать все 10 баллов!"
+        )
+        await launch_game(query, context, start_ai_game, intro_text=intro)
         return
 
     # --- Показать все группы
