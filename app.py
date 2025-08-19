@@ -70,7 +70,13 @@ def dictionary_to_list(dictionary: Dict[str, List[str]]) -> List[str]:
     return all_values
 
 def norm_group_key(s: str) -> str:
-    return s.strip().lower()
+    """Normalize user-provided group names.
+
+    Besides trimming leading/trailing whitespace and lowercasing, collapse
+    any sequence of internal whitespace into a single space so that inputs
+    like ``"Red   Velvet"`` match stored keys such as ``"red velvet"``.
+    """
+    return " ".join(s.lower().split())
 
 def menu_keyboard() -> InlineKeyboardMarkup:
     kb = [
