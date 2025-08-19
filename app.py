@@ -245,7 +245,12 @@ async def launch_game(
     ok = starter(context)
     if not ok:
         await query.edit_message_text(
-            "AI-список групп недоступен. Попробуйте позже.",
+            (
+                "AI-список групп недоступен.\n\n"
+                "Создайте файл top50_groups.json, запустив generate_top_kpop_groups.py "
+                "после установки переменной окружения OPENAI_API_KEY, и разместите его "
+                "рядом с app.py."
+            ),
             reply_markup=back_keyboard(),
         )
         return
