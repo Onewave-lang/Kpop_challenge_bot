@@ -1,7 +1,9 @@
+import json
 import os
 import random
 from contextlib import asynccontextmanager
 from http import HTTPStatus
+from pathlib import Path
 from typing import Dict, List, Optional, Set, Iterable
 
 from fastapi import FastAPI, Request, Response
@@ -39,6 +41,19 @@ kpop_groups: Dict[str, List[str]] = {
     "baby monster": ["Ruka", "Pharita", "Chiquita", "Rami", "Asa", "Ahyeon", "Rora"],
     "kiss of life": ["Natty", "Julie", "Haneul", "Belle"],
 }
+
+AI_GROUPS_FILE = "top50_groups.json"
+
+
+def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
+    file = Path(path)
+    if file.exists():
+        with file.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+ai_kpop_groups: Dict[str, List[str]] = load_ai_kpop_groups()
 
 correct_grnames: Dict[str, str] = {
     "twice": "Twice",
