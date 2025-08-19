@@ -78,6 +78,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("2. Показать все группы", callback_data="menu_show_all")],
         [InlineKeyboardButton("3. Найти участника", callback_data="menu_find_member")],
         [InlineKeyboardButton("4. Режим обучения", callback_data="menu_learn")],
+        [InlineKeyboardButton("5. Угадай группу (ИИ)", callback_data="menu_play_adv")],
     ]
     return InlineKeyboardMarkup(kb)
 
@@ -160,6 +161,12 @@ def start_game(context: ContextTypes.DEFAULT_TYPE) -> None:
         "score": 0,
         "current_member": None,
     }
+
+
+def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Инициализирует режим игры с ИИ."""
+    start_game(context)
+    context.user_data["mode"] = "ai_game"
 
 def next_question(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     g = context.user_data.get("game", {})
@@ -321,6 +328,20 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
         return
 
+    if data == "menu_play_adv":
+        start_ai_game(context)
+        member = next_question(context)
+        if member is None:
+            await query.edit_message_text(finish_text(context), reply_markup=back_keyboard())
+            return
+        await query.edit_message_text(
+            f"К какой группе относится: {member}?\n\n",
+            "Напиши название группы.",
+            reply_markup=in_game_keyboard(),
+            parse_mode="Markdown",
+        )
+        return
+
     # --- Показать все группы
     if data == "menu_show_all":
         lines: List[str] = []
@@ -418,7 +439,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     # --- Игра «Угадай группу»
-    if mode == "game":
+    if mode in ("game", "ai_game"):
         g = context.user_data.get("game", {})
         member = g.get("current_member")
         if member is None:
