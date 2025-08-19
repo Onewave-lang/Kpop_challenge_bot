@@ -104,13 +104,14 @@ def build_pretty_map(
     return mapping
 
 def menu_keyboard() -> InlineKeyboardMarkup:
-    kb = [
-        [InlineKeyboardButton("1. Угадай группу", callback_data="menu_play")],
-        [InlineKeyboardButton("2. Показать все группы", callback_data="menu_show_all")],
-        [InlineKeyboardButton("3. Найти участника", callback_data="menu_find_member")],
-        [InlineKeyboardButton("4. Режим обучения", callback_data="menu_learn")],
-        [InlineKeyboardButton("5. AI игра", callback_data="menu_ai_play")],
+    entries = [
+        ("1. Угадай группу (базовый уровень)", "menu_play"),
+        ("2. Угадай группу (ИИ)", "menu_ai_play"),
+        ("3. Показать все группы", "menu_show_all"),
+        ("4. Найти участника", "menu_find_member"),
+        ("5. Режим обучения", "menu_learn"),
     ]
+    kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
 
 def back_keyboard() -> InlineKeyboardMarkup:
