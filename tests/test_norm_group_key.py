@@ -1,0 +1,20 @@
+import os
+import unittest
+
+# The main application expects certain environment variables to be set at import
+# time. Provide dummy values so that importing ``app`` doesn't raise errors
+# during tests.
+os.environ.setdefault("TELEGRAM_BOT_TOKEN", "dummy")
+os.environ.setdefault("PUBLIC_URL", "https://example.com")
+
+from app import norm_group_key
+
+
+class NormGroupKeyTest(unittest.TestCase):
+    def test_collapses_internal_whitespace(self):
+        self.assertEqual(norm_group_key("  Red   Velvet "), "red velvet")
+        self.assertEqual(norm_group_key("BLACKPINK"), "blackpink")
+
+
+if __name__ == "__main__":
+    unittest.main()
