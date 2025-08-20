@@ -116,6 +116,18 @@ def build_pretty_map(
             mapping[pretty.lower()] = key
     return mapping
 
+
+def build_member_map(groups: Dict[str, List[str]]) -> Dict[str, Set[str]]:
+    """Создаёт словарь ``имя участника -> множество групп``,
+    чтобы корректно обрабатывать случаи, когда одно и то же имя
+    встречается в нескольких группах.
+    Сопоставление выполняется в нижнем регистре."""
+    member_map: Dict[str, Set[str]] = {}
+    for group_key, members in groups.items():
+        for member in members:
+            member_map.setdefault(member.lower(), set()).add(group_key)
+    return member_map
+
 def menu_keyboard() -> InlineKeyboardMarkup:
     entries = [
         ("1. Угадай группу (базовый уровень)", "menu_play"),
@@ -212,6 +224,7 @@ def _init_game(
         "current_member": None,
         "groups": groups,
         "pretty_map": build_pretty_map(groups, names_map),
+        "member_map": build_member_map(groups),
         "total": sample_size,
     }
 
@@ -569,16 +582,13 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         # Допускаем 2 формы ввода: ключ ("twice") или красивое имя ("Blackpink")
         answer_key = norm_group_key(text)
-        groups = g.get("groups", kpop_groups)
         pretty_map = g.get("pretty_map", PRETTY_TO_KEY)
-        is_correct = False
+        member_map = g.get("member_map", {})
 
-        if answer_key in groups and member in groups[answer_key]:
+        mapped_key = pretty_map.get(answer_key)
+        is_correct = False
+        if mapped_key and mapped_key in member_map.get(member.lower(), set()):
             is_correct = True
-        else:
-            mapped_key = pretty_map.get(answer_key)
-            if mapped_key and member in groups.get(mapped_key, []):
-                is_correct = True
 
         feedback = "Верно!" if is_correct else "Неверно!"
         if is_correct:
