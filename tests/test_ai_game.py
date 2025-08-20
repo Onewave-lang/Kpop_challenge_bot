@@ -29,6 +29,7 @@ def test_load_ai_kpop_groups(tmp_path):
 def test_start_ai_game(monkeypatch):
     ctx = SimpleNamespace(user_data={})
     monkeypatch.setattr(app, "ai_kpop_groups", DUMMY_DATA)
+    monkeypatch.setattr(app, "ai_correct_grnames", {k: k for k in DUMMY_DATA})
     assert app.start_ai_game(ctx)
     assert ctx.user_data["mode"] == "ai_game"
     assert len(ctx.user_data["game"]["members"]) == 10
