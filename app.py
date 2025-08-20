@@ -85,6 +85,11 @@ correct_grnames: Dict[str, str] = {
     "kiss of life": "Kiss of Life",
 }
 
+# Stage names that require disambiguation on Wikipedia
+WIKIMEDIA_TITLES: Dict[str, str] = {
+    "Momo": "Momo (singer)",
+}
+
 
 # =======================
 #  УТИЛИТЫ
@@ -275,7 +280,8 @@ def fetch_wikimedia_image(name: str) -> Optional[bytes]:
     Возвращает байты файла или ``None``, если получить изображение не
     удалось.
     """
-    title = urllib.parse.quote(name)
+    title = WIKIMEDIA_TITLES.get(name, name)
+    title = urllib.parse.quote(title)
     api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
     try:
         with urllib.request.urlopen(api_url, timeout=10) as resp:
