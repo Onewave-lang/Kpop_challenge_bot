@@ -51,7 +51,7 @@ def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
     The file can either contain a simple mapping of group names to members
     or an object with a ``groups`` list where each entry has ``name`` and
     ``members`` fields (as produced by the upstream AI script).
-    """
+"""
 
     file = Path(path)
     if not file.exists():
@@ -64,9 +64,6 @@ def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
     if isinstance(data, dict) and "groups" in data and isinstance(data["groups"], list):
         return {item["name"]: item["members"] for item in data["groups"]}
     return data
-
-
-ai_kpop_groups: Optional[Dict[str, List[str]]] = load_ai_kpop_groups() or None
 
 correct_grnames: Dict[str, str] = {
     "twice": "Twice",
@@ -84,8 +81,6 @@ correct_grnames: Dict[str, str] = {
     "kiss of life": "Kiss of Life",
 }
 
-# Быстрые словари для сопоставления "красивого" названия -> ключ группы
-PRETTY_TO_KEY: Dict[str, str] = {v.lower(): k for k, v in correct_grnames.items()}
 
 # =======================
 #  УТИЛИТЫ
@@ -110,10 +105,16 @@ def build_pretty_map(
     groups: Dict[str, List[str]], names_map: Optional[Dict[str, str]] = None
 ) -> Dict[str, str]:
     """Строит словарь допустимых названий групп -> ключ словаря."""
-    mapping = {k.lower(): k for k in groups.keys()}
+    mapping: Dict[str, str] = {}
+    for k in groups.keys():
+        low = k.lower()
+        mapping[low] = k
+        mapping[low.replace(" ", "")] = k
     if names_map:
         for key, pretty in names_map.items():
-            mapping[pretty.lower()] = key
+            low = pretty.lower()
+            mapping[low] = key
+            mapping[low.replace(" ", "")] = key
     return mapping
 
 
@@ -127,6 +128,26 @@ def build_member_map(groups: Dict[str, List[str]]) -> Dict[str, Set[str]]:
         for member in members:
             member_map.setdefault(member.lower(), set()).add(group_key)
     return member_map
+
+# --- Load and merge AI-generated groups ------------------------------------
+ai_kpop_groups_raw: Optional[Dict[str, List[str]]] = load_ai_kpop_groups() or None
+ai_kpop_groups: Optional[Dict[str, List[str]]]
+ai_correct_grnames: Dict[str, str] = {}
+if ai_kpop_groups_raw:
+    ai_kpop_groups = {norm_group_key(name): members for name, members in ai_kpop_groups_raw.items()}
+    ai_correct_grnames = {norm_group_key(name): name for name in ai_kpop_groups_raw.keys()}
+else:
+    ai_kpop_groups = None
+
+for key, pretty in ai_correct_grnames.items():
+    correct_grnames.setdefault(key, pretty)
+
+ALL_GROUPS: Dict[str, List[str]] = {**kpop_groups}
+if ai_kpop_groups:
+    ALL_GROUPS.update(ai_kpop_groups)
+
+# Быстрые словари для сопоставления "красивого" названия -> ключ группы
+PRETTY_TO_KEY: Dict[str, str] = {v.lower(): k for k, v in correct_grnames.items()}
 
 def menu_keyboard() -> InlineKeyboardMarkup:
     entries = [
@@ -238,7 +259,7 @@ def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Инициализирует режим игры с ИИ."""
     if not ai_kpop_groups:
         return False
-    _init_game(context, ai_kpop_groups)
+    _init_game(context, ai_kpop_groups, ai_correct_grnames)
     context.user_data["mode"] = "ai_game"
     return True
 
@@ -326,7 +347,7 @@ async def launch_game(
 # ----- Режим обучения
 
 def start_learn_session(context: ContextTypes.DEFAULT_TYPE, group_key: str) -> None:
-    members = list(kpop_groups[group_key])
+    members = list(ALL_GROUPS[group_key])
     random.shuffle(members)  # случайный порядок
     context.user_data["mode"] = "learn_train"
     context.user_data["learn"] = {
@@ -471,7 +492,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # --- Показать все группы
     if data == "menu_show_all":
         lines: List[str] = []
-        for key, members in kpop_groups.items():
+        for key, members in ALL_GROUPS.items():
             line = f"*{correct_grnames[key]}*: {', '.join(members)}"
             lines.append(line)
         text = "Все группы:\n\n" + "\n".join(lines)
@@ -500,10 +521,10 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # === Режим обучения: выбранная группа — показать состав и предложить тренироваться
     if data.startswith(CB_LEARN_PICK):
         group_key = data.split(":", 1)[1]
-        if group_key not in kpop_groups:
+        if group_key not in ALL_GROUPS:
             await query.edit_message_text("Группа не найдена.", reply_markup=groups_keyboard())
             return
-        members = kpop_groups[group_key]
+        members = ALL_GROUPS[group_key]
         lines = [f"{correct_grnames[group_key]}: {', '.join(members)}"]
         text = "Состав группы:\n\n" + "\n".join(lines)
         await query.edit_message_text(
@@ -515,7 +536,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # === Режим обучения: начать тренировку по группе
     if data.startswith(CB_LEARN_TRAIN):
         group_key = data.split(":", 1)[1]
-        if group_key not in kpop_groups:
+        if group_key not in ALL_GROUPS:
             await query.edit_message_text("Группа не найдена.", reply_markup=groups_keyboard())
             return
         start_learn_session(context, group_key)
@@ -529,7 +550,7 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 ]),
             )
             return
-        masked = make_unique_mask_for_group_member(member, kpop_groups[group_key])
+        masked = make_unique_mask_for_group_member(member, ALL_GROUPS[group_key])
         await query.edit_message_text(
             f"Группа: {correct_grnames[group_key]}\n"
             f"Угадайте участника: <code>{masked}</code>\n\n"
@@ -552,10 +573,10 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # --- Найти участника
     if mode == "find":
         member = text.title()
-        for group_key, members in kpop_groups.items():
+        for group_key, members in ALL_GROUPS.items():
             if member in members:
                 await update.message.reply_text(
-                    f"{member} — участник группы *{correct_grnames[group_key]}*",
+                    f"{member} — участник группы *{correct_grnames.get(group_key, group_key)}*",
                     reply_markup=back_keyboard(),
                     parse_mode="Markdown"
                 )
@@ -660,7 +681,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             reset_state(context)
             return
 
-        masked = make_unique_mask_for_group_member(next_member, kpop_groups[group_key])  # type: ignore
+        masked = make_unique_mask_for_group_member(next_member, ALL_GROUPS[group_key])  # type: ignore
         await update.message.reply_text(
             f"{feedback}\n\nГруппа: {title}\n"
             f"Следующий участник: <code>{masked}</code>",
