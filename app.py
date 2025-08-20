@@ -1,8 +1,11 @@
 import json
 import os
 import random
+import urllib.parse
+import urllib.request
 from contextlib import asynccontextmanager
 from http import HTTPStatus
+from io import BytesIO
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Set
 
@@ -43,6 +46,7 @@ kpop_groups: Dict[str, List[str]] = {
 }
 
 AI_GROUPS_FILE = "top50_groups.json"
+PHOTO_GAME_QUESTIONS = 20
 
 
 def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
@@ -153,9 +157,10 @@ def menu_keyboard() -> InlineKeyboardMarkup:
     entries = [
         ("1. Угадай группу (базовый уровень)", "menu_play"),
         ("2. Угадай группу (ИИ)", "menu_ai_play"),
-        ("3. Показать все группы", "menu_show_all"),
-        ("4. Найти участника", "menu_find_member"),
-        ("5. Режим обучения", "menu_learn"),
+        ("3. Угадай по фото", "menu_photo"),
+        ("4. Показать все группы", "menu_show_all"),
+        ("5. Найти участника", "menu_find_member"),
+        ("6. Режим обучения", "menu_learn"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -263,6 +268,71 @@ def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
     context.user_data["mode"] = "ai_game"
     return True
 
+
+def fetch_wikimedia_image(name: str) -> Optional[bytes]:
+    """Скачивает изображение участника из Wikimedia.
+
+    Возвращает байты файла или ``None``, если получить изображение не
+    удалось.
+    """
+    title = urllib.parse.quote(name)
+    api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
+    try:
+        with urllib.request.urlopen(api_url, timeout=10) as resp:
+            if resp.status != 200:
+                return None
+            data = json.load(resp)
+    except Exception:
+        return None
+    img_url = None
+    if isinstance(data, dict):
+        img_url = data.get("thumbnail", {}).get("source") or data.get("originalimage", {}).get("source")
+    if not img_url:
+        return None
+    try:
+        with urllib.request.urlopen(img_url, timeout=10) as img_resp:
+            if img_resp.status != 200:
+                return None
+            return img_resp.read()
+    except Exception:
+        return None
+
+
+def start_photo_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    """Инициализирует игру "Угадай по фото" с загрузкой из Wikimedia."""
+    all_members = list({m for members in ALL_GROUPS.values() for m in members})
+    random.shuffle(all_members)
+    items: List[Dict[str, bytes | str]] = []
+    for name in all_members:
+        img = fetch_wikimedia_image(name)
+        if img:
+            items.append({"image": img, "name": name})
+        if len(items) >= PHOTO_GAME_QUESTIONS:
+            break
+    if len(items) < PHOTO_GAME_QUESTIONS:
+        return False
+    context.user_data["mode"] = "photo_game"
+    context.user_data["game"] = {
+        "items": items,
+        "index": 0,
+        "score": 0,
+        "current": None,
+        "total": len(items),
+    }
+    return True
+
+
+def next_photo(context: ContextTypes.DEFAULT_TYPE) -> Optional[Dict[str, bytes | str]]:
+    g = context.user_data.get("game", {})
+    idx: int = g.get("index", 0)
+    items: List[Dict[str, bytes | str]] = g.get("items", [])
+    if idx >= len(items):
+        return None
+    item = items[idx]
+    g["current"] = item
+    context.user_data["game"] = g
+    return item
+
 def next_question(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     g = context.user_data.get("game", {})
     idx: int = g.get("index", 0)
@@ -316,7 +386,6 @@ async def launch_game(
             reply_markup=back_keyboard(),
         )
         return
-
     member = next_question(context)
     if member is None:
         await query.edit_message_text(
@@ -342,6 +411,31 @@ async def launch_game(
             question,
             reply_markup=in_game_keyboard(),
             parse_mode="Markdown",
+        )
+
+
+async def launch_photo_game(query, context: ContextTypes.DEFAULT_TYPE) -> None:
+    ok = start_photo_game(context)
+    if not ok:
+        await query.edit_message_text(
+            (
+                "Фотографии недоступны.\n\n"
+                "Не удалось получить достаточно изображений из Wikimedia."
+            ),
+            reply_markup=back_keyboard(),
+        )
+        return
+    item = next_photo(context)
+    await query.edit_message_text(
+        "Угадай по фото! Назови айдола на снимке.",
+        reply_markup=in_game_keyboard(),
+    )
+    if item:
+        img: bytes = item["image"]  # type: ignore[assignment]
+        await query.message.reply_photo(
+            BytesIO(img),
+            caption="Кто это?",
+            reply_markup=in_game_keyboard(),
         )
 
 # ----- Режим обучения
@@ -489,6 +583,11 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await launch_game(query, context, start_ai_game, intro_text=intro)
         return
 
+    # --- Игра "Угадай по фото"
+    if data == "menu_photo":
+        await launch_photo_game(query, context)
+        return
+
     # --- Показать все группы
     if data == "menu_show_all":
         lines: List[str] = []
@@ -629,6 +728,51 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(
                 f"{feedback}\n{stats}\n\nСледующий вопрос:\nК какой группе относится: {next_m}?",
                 reply_markup=in_game_keyboard(),
+            )
+        return
+
+    # --- Игра "Угадай по фото"
+    if mode == "photo_game":
+        g = context.user_data.get("game", {})
+        current = g.get("current")
+        if current is None:
+            item = next_photo(context)
+            if item is None:
+                await update.message.reply_text(
+                    finish_text(context), reply_markup=back_keyboard()
+                )
+                reset_state(context)
+                return
+            img: bytes = item["image"]  # type: ignore[assignment]
+            await update.message.reply_photo(
+                BytesIO(img), caption="Кто это?", reply_markup=in_game_keyboard()
+            )
+            return
+        answer = text.lower()
+        correct = str(current["name"]).lower()
+        is_correct = answer == correct
+        feedback = "Верно!" if is_correct else f"Неверно! Это {current['name']}"
+        if is_correct:
+            g["score"] = g.get("score", 0) + 1
+        g["index"] = g.get("index", 0) + 1
+        context.user_data["game"] = g
+
+        stats = progress_text(g)
+        next_item = next_photo(context)
+        if next_item is None:
+            await update.message.reply_text(
+                f"{feedback}\n{stats}\n\n" + finish_text(context),
+                reply_markup=back_keyboard(),
+            )
+            reset_state(context)
+        else:
+            await update.message.reply_text(
+                f"{feedback}\n{stats}\n\nСледующий вопрос:",
+                reply_markup=in_game_keyboard(),
+            )
+            img: bytes = next_item["image"]  # type: ignore[assignment]
+            await update.message.reply_photo(
+                BytesIO(img), caption="Кто это?", reply_markup=in_game_keyboard()
             )
         return
 
