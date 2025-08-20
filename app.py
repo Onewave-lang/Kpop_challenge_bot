@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import urllib.parse
@@ -309,13 +310,18 @@ def start_photo_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
     all_members = list({m for members in ALL_GROUPS.values() for m in members})
     random.shuffle(all_members)
     items: List[Dict[str, bytes | str]] = []
+    missing: List[str] = []
     for name in all_members:
         img = fetch_wikimedia_image(name)
         if img:
             items.append({"image": img, "name": name})
-        if len(items) >= PHOTO_GAME_QUESTIONS:
-            break
+            if len(items) >= PHOTO_GAME_QUESTIONS:
+                break
+        else:
+            missing.append(name)
     if len(items) < PHOTO_GAME_QUESTIONS:
+        if missing:
+            logging.warning("Missing Wikimedia images for: %s", ", ".join(missing))
         return False
     context.user_data["mode"] = "photo_game"
     context.user_data["game"] = {
