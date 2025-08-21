@@ -2,8 +2,7 @@ import json
 import logging
 import os
 import random
-import urllib.parse
-import urllib.request
+import re
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 from io import BytesIO
@@ -48,6 +47,31 @@ kpop_groups: Dict[str, List[str]] = {
 
 AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
+DROPBOX_PHOTO_FILE = "dropbox_photos.json"
+DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "")
+
+
+def _load_dropbox_map(path: str = DROPBOX_PHOTO_FILE) -> Dict[str, str]:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            entries = json.load(f)
+    except FileNotFoundError:
+        return {}
+    mapping: Dict[str, str] = {}
+    for entry in entries:
+        member = entry.get("member", "")
+        dropbox_path = entry.get("dropbox_path")
+        if not dropbox_path:
+            continue
+        tokens = re.split(r"\s+", member)
+        candidates = {member, *tokens}
+        for cand in candidates:
+            norm = re.sub(r"[-_\s]", "", cand.lower())
+            mapping.setdefault(norm, dropbox_path)
+    return mapping
+
+
+DROPBOX_PHOTOS = _load_dropbox_map()
 
 
 def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
@@ -86,10 +110,6 @@ correct_grnames: Dict[str, str] = {
     "kiss of life": "Kiss of Life",
 }
 
-# Stage names that require disambiguation on Wikipedia
-WIKIMEDIA_TITLES: Dict[str, str] = {
-    "Momo": "Momo (singer)",
-}
 
 
 # =======================
@@ -275,44 +295,34 @@ def start_ai_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
     return True
 
 
-def fetch_wikimedia_image(name: str) -> Optional[bytes]:
-    """Скачивает изображение участника из Wikimedia.
+def fetch_dropbox_image(name: str) -> Optional[bytes]:
+    """Читает изображение участника из локальной папки Dropbox.
 
-    Возвращает байты файла или ``None``, если получить изображение не
-    удалось.
+    ``DROPBOX_ROOT`` должен указывать на каталог, где смонтировано
+    хранилище Dropbox. В файле ``dropbox_photos.json`` хранится сопоставление
+    имён участников с путями к файлам внутри Dropbox. Возвращает байты файла
+    или ``None``, если файл не найден.
     """
-    title = WIKIMEDIA_TITLES.get(name, name)
-    title = urllib.parse.quote(title)
-    api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
-    try:
-        with urllib.request.urlopen(api_url, timeout=10) as resp:
-            if resp.status != 200:
-                return None
-            data = json.load(resp)
-    except Exception:
+    norm = re.sub(r"[-_\s]", "", name.lower())
+    rel_path = DROPBOX_PHOTOS.get(norm)
+    if not rel_path:
         return None
-    img_url = None
-    if isinstance(data, dict):
-        img_url = data.get("thumbnail", {}).get("source") or data.get("originalimage", {}).get("source")
-    if not img_url:
-        return None
+    file_path = Path(DROPBOX_ROOT) / rel_path.lstrip("/")
     try:
-        with urllib.request.urlopen(img_url, timeout=10) as img_resp:
-            if img_resp.status != 200:
-                return None
-            return img_resp.read()
-    except Exception:
+        with open(file_path, "rb") as f:
+            return f.read()
+    except OSError:
         return None
 
 
 def start_photo_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
-    """Инициализирует игру "Угадай по фото" с загрузкой из Wikimedia."""
+    """Инициализирует игру "Угадай по фото" с загрузкой из Dropbox."""
     all_members = list({m for members in ALL_GROUPS.values() for m in members})
     random.shuffle(all_members)
     items: List[Dict[str, bytes | str]] = []
     missing: List[str] = []
     for name in all_members:
-        img = fetch_wikimedia_image(name)
+        img = fetch_dropbox_image(name)
         if img:
             items.append({"image": img, "name": name})
             if len(items) >= PHOTO_GAME_QUESTIONS:
@@ -321,7 +331,7 @@ def start_photo_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
             missing.append(name)
     if len(items) < PHOTO_GAME_QUESTIONS:
         if missing:
-            logging.warning("Missing Wikimedia images for: %s", ", ".join(missing))
+            logging.warning("Missing Dropbox images for: %s", ", ".join(missing))
         return False
     context.user_data["mode"] = "photo_game"
     context.user_data["game"] = {

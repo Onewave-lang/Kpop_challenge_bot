@@ -6,7 +6,7 @@ class DummyContext:
         self.user_data = {}
 
 
-def test_start_photo_game_wikimedia(monkeypatch):
+def test_start_photo_game_dropbox(monkeypatch):
     # Подготовим тестовые данные: у двух айдолов есть изображения, у одного нет
     groups = {"g": ["idol one", "idol two", "idol three"]}
     monkeypatch.setattr(app, "ALL_GROUPS", groups)
@@ -15,7 +15,7 @@ def test_start_photo_game_wikimedia(monkeypatch):
     def fake_fetch(name):
         return b"img" if name in {"idol one", "idol two"} else None
 
-    monkeypatch.setattr(app, "fetch_wikimedia_image", fake_fetch)
+    monkeypatch.setattr(app, "fetch_dropbox_image", fake_fetch)
 
     ctx = DummyContext()
     assert app.start_photo_game(ctx)
