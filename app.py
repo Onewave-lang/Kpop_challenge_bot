@@ -442,7 +442,7 @@ async def launch_photo_game(query, context: ContextTypes.DEFAULT_TYPE) -> None:
         await query.edit_message_text(
             (
                 "Фотографии недоступны.\n\n"
-                "Не удалось получить достаточно изображений из Wikimedia."
+                "Не удалось получить достаточно изображений из Dropbox."
             ),
             reply_markup=back_keyboard(),
         )
