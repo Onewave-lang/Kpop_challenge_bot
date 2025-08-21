@@ -47,31 +47,43 @@ kpop_groups: Dict[str, List[str]] = {
 
 AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
-DROPBOX_PHOTO_FILE = "dropbox_photos.json"
 DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
 
 
-def _load_dropbox_map(path: str = DROPBOX_PHOTO_FILE) -> Dict[str, str]:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            entries = json.load(f)
-    except FileNotFoundError:
-        return {}
+def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, str]:
+    """Обходит локальную синхронизацию Dropbox и строит карту
+    ``нормализованное имя участника -> относительный путь к файлу``.
+
+    Для каждого каталога участницы берётся первый попавшийся файл.
+    В качестве ключей используются как полное имя папки, так и отдельные
+    токены, разделённые пробелами, что позволяет поддерживать сокращённые
+    варианты имён.
+    """
+
     mapping: Dict[str, str] = {}
-    for entry in entries:
-        member = entry.get("member", "")
-        dropbox_path = entry.get("dropbox_path")
-        if not dropbox_path:
+    if not root.exists():
+        return mapping
+
+    for group_dir in root.iterdir():
+        if not group_dir.is_dir():
             continue
-        tokens = re.split(r"\s+", member)
-        candidates = {member, *tokens}
-        for cand in candidates:
-            norm = re.sub(r"[-_\s]", "", cand.lower())
-            mapping.setdefault(norm, dropbox_path)
+        for member_dir in group_dir.iterdir():
+            if not member_dir.is_dir():
+                continue
+            files = sorted(member_dir.iterdir())
+            if not files:
+                continue
+            rel = str(files[0].relative_to(DROPBOX_ROOT)).replace("\\", "/")
+            name = member_dir.name
+            tokens = re.split(r"\s+", name)
+            candidates = {name, *tokens}
+            for cand in candidates:
+                norm = re.sub(r"[-_\s]", "", cand.lower())
+                mapping.setdefault(norm, f"/{rel}")
     return mapping
 
 
-DROPBOX_PHOTOS = _load_dropbox_map()
+DROPBOX_PHOTOS = _scan_dropbox_photos()
 
 
 def load_ai_kpop_groups(path: str = AI_GROUPS_FILE) -> Dict[str, List[str]]:
@@ -299,8 +311,8 @@ def fetch_dropbox_image(name: str) -> Optional[bytes]:
     """Читает изображение участника из локальной папки Dropbox.
 
     ``DROPBOX_ROOT`` должен указывать на каталог, где смонтировано
-    хранилище Dropbox. В файле ``dropbox_photos.json`` хранится сопоставление
-    имён участников с путями к файлам внутри Dropbox. Возвращает байты файла
+    хранилище Dropbox. Сопоставление имён участниц с файлами строится
+    динамически на основе фактической структуры папок. Возвращает байты файла
     или ``None``, если файл не найден.
     """
     norm = re.sub(r"[-_\s]", "", name.lower())
