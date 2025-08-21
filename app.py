@@ -48,7 +48,7 @@ kpop_groups: Dict[str, List[str]] = {
 AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
 DROPBOX_PHOTO_FILE = "dropbox_photos.json"
-DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "")
+DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
 
 
 def _load_dropbox_map(path: str = DROPBOX_PHOTO_FILE) -> Dict[str, str]:
