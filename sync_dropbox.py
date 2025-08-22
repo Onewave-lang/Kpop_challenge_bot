@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """
-Sync the folder `/kpop_images` from Dropbox into the local directory defined by
-the environment variable `DROPBOX_ROOT`.
+Sync a folder from Dropbox into the local directory defined by the
+environment variable `DROPBOX_ROOT`.
 
-Requirements:
-  pip install dropbox
-  (Add “dropbox” to requirements.txt when deploying.)
+The remote folder defaults to `/kpop_images` but can be overridden via
+`DROPBOX_REMOTE_PATH`.
+
+Before downloading, the existing local directory is wiped so that photos
+deleted in Dropbox do not remain on disk.
 """
 
 import logging
 import os
+import shutil
 from pathlib import Path
 
 import dropbox
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-DROPBOX_TOKEN = os.environ.get("DROPBOX_TOKEN")
+APP_KEY = os.environ.get("DROPBOX_APP_KEY")
+APP_SECRET = os.environ.get("DROPBOX_APP_SECRET")
+REFRESH_TOKEN = os.environ.get("DROPBOX_REFRESH_TOKEN")
 DROPBOX_ROOT = Path(os.environ.get("DROPBOX_ROOT", "./dropbox_sync"))
-REMOTE_FOLDER = "/kpop_images"   # change if your Dropbox structure differs
+REMOTE_FOLDER = os.environ.get("DROPBOX_REMOTE_PATH", "/kpop_images")
 
 
 def _download_entries(dbx: dropbox.Dropbox,
@@ -37,6 +42,13 @@ def _download_entries(dbx: dropbox.Dropbox,
 def sync_folder(dbx: dropbox.Dropbox,
                 remote_folder: str,
                 local_root: Path) -> None:
+    """Download ``remote_folder`` into ``local_root``.
+
+    The existing ``local_root`` directory is removed before downloading to
+    ensure that any files deleted in Dropbox do not linger locally.
+    """
+    if local_root.exists():
+        shutil.rmtree(local_root)
     local_root.mkdir(parents=True, exist_ok=True)
 
     result = dbx.files_list_folder(remote_folder, recursive=True)
@@ -48,10 +60,17 @@ def sync_folder(dbx: dropbox.Dropbox,
 
 
 def main() -> None:
-    if not DROPBOX_TOKEN:
-        raise SystemExit("Environment variable DROPBOX_TOKEN is missing")
+    if not all([APP_KEY, APP_SECRET, REFRESH_TOKEN]):
+        raise SystemExit(
+            "Environment variables DROPBOX_APP_KEY, DROPBOX_APP_SECRET, "
+            "and DROPBOX_REFRESH_TOKEN are required"
+        )
 
-    dbx = dropbox.Dropbox(DROPBOX_TOKEN)
+    dbx = dropbox.Dropbox(
+        app_key=APP_KEY,
+        app_secret=APP_SECRET,
+        oauth2_refresh_token=REFRESH_TOKEN,
+    )
     sync_folder(dbx, REMOTE_FOLDER, DROPBOX_ROOT)
 
 
