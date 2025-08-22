@@ -582,9 +582,13 @@ async def launch_game(
     При наличии ``intro_text`` сначала выводит приветственное сообщение,
     а затем отдельным сообщением отправляет первый вопрос.
     """
+    try:
+        await query.edit_message_reply_markup(reply_markup=None)
+    except Exception:
+        pass
     ok = starter(context)
     if not ok:
-        await query.edit_message_text(
+        await query.message.reply_text(
             (
                 "AI-список групп недоступен.\n\n"
                 "Создайте файл top50_groups.json, запустив generate_top_kpop_groups.py "
@@ -596,7 +600,7 @@ async def launch_game(
         return
     member = next_question(context)
     if member is None:
-        await query.edit_message_text(
+        await query.message.reply_text(
             finish_text(context), reply_markup=back_keyboard()
         )
         return
@@ -604,7 +608,7 @@ async def launch_game(
     question = f"К какой группе относится: {member}?\n\nНапиши название группы."
 
     if intro_text:
-        await query.edit_message_text(
+        await query.message.reply_text(
             intro_text,
             reply_markup=in_game_keyboard(),
             parse_mode="Markdown",
@@ -615,7 +619,7 @@ async def launch_game(
             parse_mode="Markdown",
         )
     else:
-        await query.edit_message_text(
+        await query.message.reply_text(
             question,
             reply_markup=in_game_keyboard(),
             parse_mode="Markdown",
@@ -623,9 +627,13 @@ async def launch_game(
 
 
 async def launch_photo_game(query, context: ContextTypes.DEFAULT_TYPE) -> None:
+    try:
+        await query.edit_message_reply_markup(reply_markup=None)
+    except Exception:
+        pass
     ok = start_photo_game(context)
     if not ok:
-        await query.edit_message_text(
+        await query.message.reply_text(
             (
                 "Фотографии недоступны.\n\n"
                 "Не удалось получить достаточно изображений из Dropbox."
@@ -634,7 +642,7 @@ async def launch_photo_game(query, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         return
     item = next_photo(context)
-    await query.edit_message_text(
+    await query.message.reply_text(
         "Угадай по фото! Назови айдола на снимке.",
         reply_markup=in_game_keyboard(),
     )
@@ -1010,18 +1018,26 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     # --- Показать все группы
     if data == "menu_show_all":
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
         lines: List[str] = []
         for key, members in ALL_GROUPS.items():
             line = f"*{correct_grnames[key]}*: {', '.join(members)}"
             lines.append(line)
         text = "Все группы:\n\n" + "\n".join(lines)
-        await query.edit_message_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
+        await query.message.reply_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
         return
 
     # --- Найти участника
     if data == "menu_find_member":
         context.user_data["mode"] = "find"
-        await query.edit_message_text(
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await query.message.reply_text(
             "Введите имя участника k-pop группы:",
             reply_markup=back_keyboard(),
             parse_mode="Markdown",
@@ -1031,7 +1047,11 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # === Режим обучения: меню выбора группы
     if data == CB_LEARN_MENU or data == "menu_learn":
         context.user_data["mode"] = "learn_menu"
-        await query.edit_message_text(
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await query.message.reply_text(
             "Выберите k-pop группу для изучения:",
             reply_markup=groups_keyboard(),
         )
