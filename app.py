@@ -494,7 +494,7 @@ def catalog_nav_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("▶️ Следующее фото", callback_data="catalog_next")],
-            [InlineKeyboardButton("📁 Каталог", callback_data="menu_catalog")],
+            [InlineKeyboardButton("📁 Обратно в меню каталога", callback_data="menu_catalog")],
             [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
         ]
     )
@@ -505,6 +505,12 @@ def catalog_groups_keyboard() -> InlineKeyboardMarkup:
     buttons: List[List[InlineKeyboardButton]] = []
     row: List[InlineKeyboardButton] = []
     for key in correct_grnames.keys():
+        members = ALL_GROUPS.get(key, [])
+        has_photo = any(
+            re.sub(r"[-_\s]", "", m.lower()) in DROPBOX_PHOTOS for m in members
+        )
+        if not has_photo:
+            continue
         title = correct_grnames[key]
         row.append(InlineKeyboardButton(title, callback_data=f"{CB_CATALOG_PICK}{key}"))
         if len(row) == 2:
@@ -710,7 +716,11 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # --- Назад в меню
     if data == "menu_back":
         reset_state(context)
-        await query.edit_message_text("Меню:", reply_markup=menu_keyboard())
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await query.message.reply_text("Меню:", reply_markup=menu_keyboard())
         return
 
     # --- Игра «Угадай группу»
@@ -736,7 +746,12 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     # --- Каталог фото
     if data == "menu_catalog":
-        await query.edit_message_text(
+        reset_state(context)
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await query.message.reply_text(
             "Каталог фото:", reply_markup=catalog_menu_keyboard()
         )
         return
