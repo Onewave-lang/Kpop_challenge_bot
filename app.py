@@ -132,10 +132,87 @@ AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
 DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
 
-# Base64-encoded 1x1px transparent PNG used as a cover image placeholder
-COVER_IMAGE_BYTES: bytes = base64.b64decode(
+# Remote location of the cover image within Dropbox
+COVER_IMAGE_REMOTE_PATH = "/cover_image/cover1.png"
+COVER_IMAGE_PATH = Path(DROPBOX_ROOT) / COVER_IMAGE_REMOTE_PATH.lstrip("/")
+
+# Base64-encoded 1x1px transparent PNG used as a fallback cover image
+_PLACEHOLDER_COVER_BYTES: bytes = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
 )
+
+
+CHUNK_SIZE = 4 * 1024 * 1024  # 4MB used by Dropbox for content hashes
+
+
+def _dropbox_content_hash(path: Path) -> str:
+    """Compute the Dropbox content hash for ``path``."""
+    import hashlib
+
+    hasher = hashlib.sha256()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(CHUNK_SIZE)
+            if not chunk:
+                break
+            hasher.update(hashlib.sha256(chunk).digest())
+    return hasher.hexdigest()
+
+
+def _ensure_cover_image(dbx: Optional["dropbox.Dropbox"] = None) -> Path:
+    """Download the cover image from Dropbox if needed.
+
+    Only downloads when the local file is missing or has different content
+    hash compared to Dropbox. Returns the local path to the image.
+    """
+
+    local_path = COVER_IMAGE_PATH
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if dbx is None:
+        try:
+            import dropbox  # type: ignore
+        except Exception:  # pragma: no cover - library missing
+            return local_path
+        app_key = os.environ.get("DROPBOX_APP_KEY")
+        app_secret = os.environ.get("DROPBOX_APP_SECRET")
+        refresh_token = os.environ.get("DROPBOX_REFRESH_TOKEN")
+        if not all([app_key, app_secret, refresh_token]):
+            return local_path
+        try:
+            dbx = dropbox.Dropbox(
+                app_key=app_key,
+                app_secret=app_secret,
+                oauth2_refresh_token=refresh_token,
+            )
+        except Exception:  # pragma: no cover - network/auth errors
+            return local_path
+
+    try:
+        metadata = dbx.files_get_metadata(COVER_IMAGE_REMOTE_PATH)
+        if local_path.exists():
+            try:
+                if _dropbox_content_hash(local_path) == metadata.content_hash:
+                    return local_path
+            except OSError:
+                pass
+        _, res = dbx.files_download(COVER_IMAGE_REMOTE_PATH)
+        with local_path.open("wb") as f:
+            f.write(res.content)
+    except Exception:  # pragma: no cover - network/auth errors
+        pass
+    return local_path
+
+
+def _load_cover_image_bytes() -> bytes:
+    path = _ensure_cover_image()
+    try:
+        return path.read_bytes()
+    except OSError:
+        return _PLACEHOLDER_COVER_BYTES
+
+
+COVER_IMAGE_BYTES: bytes = _load_cover_image_bytes()
 
 
 def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, List[str]]:
