@@ -199,6 +199,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("4. Показать все группы", "menu_show_all"),
         ("5. Найти участника", "menu_find_member"),
         ("6. Режим обучения", "menu_learn"),
+        ("7. Каталог фото", "menu_catalog"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -472,6 +473,117 @@ async def launch_photo_game(query, context: ContextTypes.DEFAULT_TYPE) -> None:
             reply_markup=in_game_keyboard(),
         )
 
+# ----- Каталог фото --------------------------------------------------------
+
+CB_CATALOG_PICK = "catalog_group:"  # выбор группы для каталога
+
+
+def catalog_menu_keyboard() -> InlineKeyboardMarkup:
+    """Главное меню каталога с выбором режима просмотра."""
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Просмотр по группам", callback_data="catalog_by_group")],
+            [InlineKeyboardButton("Просмотр в случайном порядке", callback_data="catalog_random")],
+            [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
+        ]
+    )
+
+
+def catalog_nav_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура навигации при показе фотографий."""
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("▶️ Следующее фото", callback_data="catalog_next")],
+            [InlineKeyboardButton("📁 Каталог", callback_data="menu_catalog")],
+            [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
+        ]
+    )
+
+
+def catalog_groups_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура со списком групп для каталога."""
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for key in correct_grnames.keys():
+        title = correct_grnames[key]
+        row.append(InlineKeyboardButton(title, callback_data=f"{CB_CATALOG_PICK}{key}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ В каталог", callback_data="menu_catalog")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def build_catalog_for_group(
+    group_key: str, groups: Dict[str, List[str]] = ALL_GROUPS
+) -> List[Dict[str, bytes | str]]:
+    """Собирает фотографии участников выбранной группы."""
+    items: List[Dict[str, bytes | str]] = []
+    for name in groups.get(group_key, []):
+        img = fetch_dropbox_image(name)
+        if img:
+            items.append({"image": img, "name": name, "group": group_key})
+    return items
+
+
+def build_catalog_random(
+    groups: Dict[str, List[str]] = ALL_GROUPS,
+) -> List[Dict[str, bytes | str]]:
+    """Собирает фотографии всех участников во всех группах в случайном порядке."""
+    items: List[Dict[str, bytes | str]] = []
+    for group_key, members in groups.items():
+        for name in members:
+            img = fetch_dropbox_image(name)
+            if img:
+                items.append({"image": img, "name": name, "group": group_key})
+    random.shuffle(items)
+    return items
+
+
+def start_random_catalog(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    items = build_catalog_random()
+    if not items:
+        return False
+    context.user_data["mode"] = "catalog"
+    context.user_data["catalog"] = {
+        "items": items,
+        "index": 0,
+        "mode": "random",
+    }
+    return True
+
+
+def start_group_catalog(
+    context: ContextTypes.DEFAULT_TYPE, group_key: str
+) -> bool:
+    items = build_catalog_for_group(group_key)
+    if not items:
+        return False
+    context.user_data["mode"] = "catalog"
+    context.user_data["catalog"] = {
+        "items": items,
+        "index": 0,
+        "mode": "group",
+        "group": group_key,
+    }
+    return True
+
+
+def next_catalog_item(
+    context: ContextTypes.DEFAULT_TYPE,
+) -> Optional[Dict[str, bytes | str]]:
+    catalog = context.user_data.get("catalog", {})
+    idx: int = catalog.get("index", 0)
+    items: List[Dict[str, bytes | str]] = catalog.get("items", [])
+    if idx >= len(items):
+        return None
+    item = items[idx]
+    catalog["index"] = idx + 1
+    context.user_data["catalog"] = catalog
+    return item
+
 # ----- Режим обучения
 
 def start_learn_session(context: ContextTypes.DEFAULT_TYPE, group_key: str) -> None:
@@ -620,6 +732,86 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     # --- Игра "Угадай по фото"
     if data == "menu_photo":
         await launch_photo_game(query, context)
+        return
+
+    # --- Каталог фото
+    if data == "menu_catalog":
+        await query.edit_message_text(
+            "Каталог фото:", reply_markup=catalog_menu_keyboard()
+        )
+        return
+
+    if data == "catalog_by_group":
+        await query.edit_message_text(
+            "Выберите группу:", reply_markup=catalog_groups_keyboard()
+        )
+        return
+
+    if data.startswith(CB_CATALOG_PICK):
+        group_key = data.split(":", 1)[1]
+        ok = start_group_catalog(context, group_key)
+        if not ok:
+            await query.edit_message_text(
+                "Нет доступных фото для этой группы.",
+                reply_markup=catalog_menu_keyboard(),
+            )
+            return
+        item = next_catalog_item(context)
+        await query.edit_message_text(
+            f"Фото участников группы {correct_grnames.get(group_key, group_key)}:",
+            reply_markup=catalog_nav_keyboard(),
+        )
+        if item:
+            img: bytes = item["image"]  # type: ignore[assignment]
+            await query.message.reply_photo(
+                BytesIO(img),
+                caption=item["name"],
+                reply_markup=catalog_nav_keyboard(),
+            )
+        return
+
+    if data == "catalog_random":
+        ok = start_random_catalog(context)
+        if not ok:
+            await query.edit_message_text(
+                "Фото недоступны.", reply_markup=catalog_menu_keyboard()
+            )
+            return
+        item = next_catalog_item(context)
+        await query.edit_message_text(
+            "Случайные фото айдолов:",
+            reply_markup=catalog_nav_keyboard(),
+        )
+        if item:
+            cap = (
+                f"{item['name']} из группы "
+                f"{correct_grnames.get(item['group'], item['group'])}"
+            )
+            img: bytes = item["image"]  # type: ignore[assignment]
+            await query.message.reply_photo(
+                BytesIO(img), caption=cap, reply_markup=catalog_nav_keyboard()
+            )
+        return
+
+    if data == "catalog_next":
+        item = next_catalog_item(context)
+        if item is None:
+            await query.edit_message_reply_markup(reply_markup=None)
+            await query.message.reply_text(
+                "Больше нет фото.", reply_markup=catalog_menu_keyboard()
+            )
+            return
+        await query.edit_message_reply_markup(reply_markup=None)
+        mode = context.user_data.get("catalog", {}).get("mode")
+        caption = (
+            item["name"]
+            if mode == "group"
+            else f"{item['name']} из группы {correct_grnames.get(item['group'], item['group'])}"
+        )
+        img: bytes = item["image"]  # type: ignore[assignment]
+        await query.message.reply_photo(
+            BytesIO(img), caption=caption, reply_markup=catalog_nav_keyboard()
+        )
         return
 
     # --- Показать все группы
