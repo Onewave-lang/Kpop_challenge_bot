@@ -6,12 +6,19 @@ def test_build_catalog_for_group(monkeypatch):
     monkeypatch.setattr(app, "ALL_GROUPS", groups)
 
     def fake_fetch(name):
-        return b"img" if name in {"a", "c"} else None
+        if name == "a":
+            return [b"img1", b"img2"]
+        if name == "c":
+            return [b"img3"]
+        return []
 
-    monkeypatch.setattr(app, "fetch_dropbox_image", fake_fetch)
+    monkeypatch.setattr(app, "fetch_dropbox_images", fake_fetch)
 
-    items = app.build_catalog_for_group("g1")
-    assert items == [{"image": b"img", "name": "a", "group": "g1"}]
+    items = app.build_catalog_for_group("g1", app.ALL_GROUPS)
+    assert items == [
+        {"image": b"img1", "name": "a", "group": "g1"},
+        {"image": b"img2", "name": "a", "group": "g1"},
+    ]
 
 
 def test_build_catalog_random(monkeypatch):
@@ -19,10 +26,15 @@ def test_build_catalog_random(monkeypatch):
     monkeypatch.setattr(app, "ALL_GROUPS", groups)
 
     def fake_fetch(name):
-        return b"img" if name != "d" else None
+        if name == "a":
+            return [b"img1", b"img2"]
+        if name == "c":
+            return [b"img3"]
+        return []
 
-    monkeypatch.setattr(app, "fetch_dropbox_image", fake_fetch)
+    monkeypatch.setattr(app, "fetch_dropbox_images", fake_fetch)
 
-    items = app.build_catalog_random()
-    names = {(i["name"], i["group"]) for i in items}
-    assert names == {("a", "g1"), ("c", "g2")}
+    items = app.build_catalog_random(app.ALL_GROUPS)
+    names = [(i["name"], i["group"]) for i in items]
+    assert names.count(("a", "g1")) == 2
+    assert names.count(("c", "g2")) == 1
