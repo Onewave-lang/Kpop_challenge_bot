@@ -698,12 +698,13 @@ def catalog_groups_keyboard() -> InlineKeyboardMarkup:
 def build_catalog_for_group(
     group_key: str, groups: Dict[str, List[str]] = ALL_GROUPS
 ) -> List[Dict[str, bytes | str]]:
-    """Собирает фотографии участников выбранной группы."""
+    """Собирает фотографии участников выбранной группы в случайном порядке."""
     items: List[Dict[str, bytes | str]] = []
     for name in groups.get(group_key, []):
         imgs = fetch_dropbox_images(name)
         for img in imgs:
             items.append({"image": img, "name": name, "group": group_key})
+    random.shuffle(items)
     return items
 
 

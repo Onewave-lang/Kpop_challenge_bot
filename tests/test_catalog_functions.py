@@ -14,10 +14,16 @@ def test_build_catalog_for_group(monkeypatch):
 
     monkeypatch.setattr(app, "fetch_dropbox_images", fake_fetch)
 
+    # Ensure items are shuffled by reversing the list
+    def fake_shuffle(lst):
+        lst.reverse()
+
+    monkeypatch.setattr(app.random, "shuffle", fake_shuffle)
+
     items = app.build_catalog_for_group("g1", app.ALL_GROUPS)
     assert items == [
-        {"image": b"img1", "name": "a", "group": "g1"},
         {"image": b"img2", "name": "a", "group": "g1"},
+        {"image": b"img1", "name": "a", "group": "g1"},
     ]
 
 
