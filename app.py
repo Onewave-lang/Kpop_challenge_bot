@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -130,6 +131,11 @@ kpop_groups: Dict[str, List[str]] = {
 AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
 DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
+
+# Base64-encoded 1x1px transparent PNG used as a cover image placeholder
+COVER_IMAGE_BYTES: bytes = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
+)
 
 
 def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, List[str]]:
@@ -793,8 +799,9 @@ def pick_next_to_guess(context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reset_state(context)
-    await update.message.reply_text(
-        "Добро пожаловать в K-pop игру!! Выбери действие:",
+    await update.message.reply_photo(
+        BytesIO(COVER_IMAGE_BYTES),
+        caption="Добро пожаловать в K-pop игру!! Выбери действие:",
         reply_markup=menu_keyboard(),
     )
 
@@ -810,7 +817,11 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             await query.edit_message_reply_markup(reply_markup=None)
         except Exception:
             pass
-        await query.message.reply_text("Меню:", reply_markup=menu_keyboard())
+        await query.message.reply_photo(
+            BytesIO(COVER_IMAGE_BYTES),
+            caption="Меню:",
+            reply_markup=menu_keyboard(),
+        )
         return
 
     # --- Игра «Угадай группу»
