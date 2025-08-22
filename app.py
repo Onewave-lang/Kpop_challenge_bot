@@ -5,10 +5,11 @@ import os
 import random
 import re
 from contextlib import asynccontextmanager
+from datetime import date
 from http import HTTPStatus
 from io import BytesIO
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Optional, Set
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 
 try:
     from fastapi import FastAPI, Request, Response
@@ -133,6 +134,28 @@ AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
 DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
 UPLOAD_PASSWORD = os.environ.get("UPLOAD_PASSWORD")
+
+# Ограничение по количеству загружаемых фото в сутки для одного пользователя
+UPLOAD_LIMIT_PER_DAY = 25
+USER_UPLOADS: Dict[int, Tuple[date, int]] = {}
+
+def has_reached_upload_limit(user_id: int) -> bool:
+    """Возвращает True, если пользователь достиг лимита загрузок на сегодня."""
+    today = date.today()
+    last_date, count = USER_UPLOADS.get(user_id, (today, 0))
+    if last_date != today:
+        USER_UPLOADS[user_id] = (today, 0)
+        return False
+    return count >= UPLOAD_LIMIT_PER_DAY
+
+def register_user_upload(user_id: int) -> None:
+    """Увеличивает счетчик загрузок для пользователя на текущую дату."""
+    today = date.today()
+    last_date, count = USER_UPLOADS.get(user_id, (today, 0))
+    if last_date != today:
+        USER_UPLOADS[user_id] = (today, 1)
+    else:
+        USER_UPLOADS[user_id] = (today, count + 1)
 
 # Remote location of the cover image within Dropbox
 COVER_IMAGE_REMOTE_PATH = "/cover_image/cover1.png"
@@ -386,7 +409,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("5. Найти участника", "menu_find_member"),
         ("6. Режим обучения", "menu_learn"),
         ("7. Каталог фото", "menu_catalog"),
-        ("8. Добавить фото", "menu_upload"),
+        ("[адм.] Добавить фото", "menu_upload"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -1458,6 +1481,14 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text("Не выбрана группа или участник.", reply_markup=back_keyboard())
             reset_state(context)
             return
+        user = update.effective_user
+        if user and has_reached_upload_limit(user.id):
+            await update.message.reply_text(
+                f"Достигнут лимит загрузок в день, равный {UPLOAD_LIMIT_PER_DAY} фото.",
+                reply_markup=back_keyboard(),
+            )
+            reset_state(context)
+            return
         photo = update.message.photo[-1]
         if photo.file_size and photo.file_size > 8 * 1024 * 1024:
             await update.message.reply_text(
@@ -1475,6 +1506,8 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             )
         else:
             if ok:
+                if update.effective_user:
+                    register_user_upload(update.effective_user.id)
                 await update.message.reply_text(
                     "Фото успешно загружено!", reply_markup=back_keyboard()
                 )
