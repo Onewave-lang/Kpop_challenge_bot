@@ -161,6 +161,20 @@ def _dropbox_content_hash(path: Path) -> str:
     return hasher.hexdigest()
 
 
+def _dropbox_content_hash_bytes(data: bytes) -> str:
+    """Compute the Dropbox content hash for raw ``data``."""
+    import hashlib
+
+    hasher = hashlib.sha256()
+    bio = BytesIO(data)
+    while True:
+        chunk = bio.read(CHUNK_SIZE)
+        if not chunk:
+            break
+        hasher.update(hashlib.sha256(chunk).digest())
+    return hasher.hexdigest()
+
+
 def _ensure_cover_image(dbx: Optional["dropbox.Dropbox"] = None) -> Path:
     """Download the cover image from Dropbox if needed.
 
@@ -465,7 +479,7 @@ def _next_member_filename(group_key: str, member: str, suffix: str) -> str:
     member_dir.mkdir(parents=True, exist_ok=True)
     max_idx = 0
     for file in member_dir.glob(f"{member}__*"):
-        m = re.match(fr"^\Q{member}\E__([0-9]{{2}})", file.stem)
+        m = re.match(rf"^{re.escape(member)}__([0-9]{{2}})", file.stem)
         if m:
             try:
                 idx = int(m.group(1))
@@ -477,10 +491,25 @@ def _next_member_filename(group_key: str, member: str, suffix: str) -> str:
 
 
 def save_user_photo(group_key: str, member: str, data: bytes, suffix: str) -> bool:
-    """Сохраняет фото локально и в Dropbox. Возвращает ``True`` при успехе."""
-    filename = _next_member_filename(group_key, member, suffix)
+    """Сохраняет фото локально и в Dropbox.
+
+    Raises ``FileExistsError`` если в каталоге уже есть файл с таким же
+    содержимым. Возвращает ``True`` при успешном сохранении.
+    """
     local_dir = Path(DROPBOX_ROOT) / "kpop_images" / group_key / member
     local_dir.mkdir(parents=True, exist_ok=True)
+
+    # Проверяем, нет ли уже такого файла по content hash
+    new_hash = _dropbox_content_hash_bytes(data)
+    for file in local_dir.iterdir():
+        try:
+            existing_hash = _dropbox_content_hash(file)
+        except OSError:
+            continue
+        if existing_hash == new_hash:
+            raise FileExistsError
+
+    filename = _next_member_filename(group_key, member, suffix)
     local_path = local_dir / filename
     try:
         with local_path.open("wb") as f:
@@ -1438,15 +1467,21 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         file = await photo.get_file()
         data = await file.download_as_bytearray()
         suffix = Path(file.file_path or "").suffix or ".jpg"
-        ok = save_user_photo(group_key, member, bytes(data), suffix)  # type: ignore[arg-type]
-        if ok:
+        try:
+            ok = save_user_photo(group_key, member, bytes(data), suffix)  # type: ignore[arg-type]
+        except FileExistsError:
             await update.message.reply_text(
-                "Фото успешно загружено!", reply_markup=back_keyboard()
+                "Такое фото уже существует.", reply_markup=back_keyboard()
             )
         else:
-            await update.message.reply_text(
-                "Не удалось сохранить фото.", reply_markup=back_keyboard()
-            )
+            if ok:
+                await update.message.reply_text(
+                    "Фото успешно загружено!", reply_markup=back_keyboard()
+                )
+            else:
+                await update.message.reply_text(
+                    "Не удалось сохранить фото.", reply_markup=back_keyboard()
+                )
         reset_state(context)
         return
     await on_unknown(update, context)
