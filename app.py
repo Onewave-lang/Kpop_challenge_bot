@@ -107,6 +107,7 @@ except Exception:  # pragma: no cover - used only when telegram missing
     class filters:
         TEXT = _DummyFilter()
         COMMAND = _DummyFilter()
+        PHOTO = _DummyFilter()
 
 # =======================
 #  ДАННЫЕ
@@ -131,6 +132,7 @@ kpop_groups: Dict[str, List[str]] = {
 AI_GROUPS_FILE = "top50_groups.json"
 PHOTO_GAME_QUESTIONS = 20
 DROPBOX_ROOT = os.environ.get("DROPBOX_ROOT", "./dropbox_sync")
+UPLOAD_PASSWORD = os.environ.get("UPLOAD_PASSWORD")
 
 # Remote location of the cover image within Dropbox
 COVER_IMAGE_REMOTE_PATH = "/cover_image/cover1.png"
@@ -370,6 +372,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("5. Найти участника", "menu_find_member"),
         ("6. Режим обучения", "menu_learn"),
         ("7. Каталог фото", "menu_catalog"),
+        ("8. Добавить фото", "menu_upload"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -379,6 +382,10 @@ def back_keyboard() -> InlineKeyboardMarkup:
 
 def in_game_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("🏁 Прервать игру", callback_data="menu_back")]])
+
+# ---- callback префиксы для загрузки фото
+CB_UPLOAD_GROUP = "upload_group:"    # выбор группы для загрузки
+CB_UPLOAD_MEMBER = "upload_member:"  # выбор участника для загрузки
 
 # ---- callback "префиксы" для режима обучения
 CB_LEARN_PICK = "learn_pick:"       # выбор группы
@@ -416,6 +423,93 @@ def learn_in_session_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🏁 Завершить обучение", callback_data=CB_LEARN_MENU)],
         [InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")],
     ])
+
+def upload_groups_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура со списком групп, доступных для загрузки фото."""
+    root = Path(DROPBOX_ROOT) / "kpop_images"
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    if root.exists():
+        for dir in sorted(p for p in root.iterdir() if p.is_dir()):
+            key = dir.name.lower()
+            title = correct_grnames.get(key, dir.name)
+            row.append(InlineKeyboardButton(title, callback_data=f"{CB_UPLOAD_GROUP}{key}"))
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")])
+    return InlineKeyboardMarkup(buttons)
+
+def upload_members_keyboard(group_key: str) -> InlineKeyboardMarkup:
+    """Клавиатура со списком участников выбранной группы."""
+    members = ALL_GROUPS.get(group_key, [])
+    buttons: List[List[InlineKeyboardButton]] = []
+    row: List[InlineKeyboardButton] = []
+    for member in members:
+        row.append(InlineKeyboardButton(member, callback_data=f"{CB_UPLOAD_MEMBER}{member}"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    buttons.append([InlineKeyboardButton("⬅️ Выбрать другую группу", callback_data="menu_upload")])
+    buttons.append([InlineKeyboardButton("🏠 В главное меню", callback_data="menu_back")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def _next_member_filename(group_key: str, member: str, suffix: str) -> str:
+    """Возвращает имя файла вида ``{member}__NN{suffix}`` с незанятым номером."""
+    member_dir = Path(DROPBOX_ROOT) / "kpop_images" / group_key / member
+    member_dir.mkdir(parents=True, exist_ok=True)
+    max_idx = 0
+    for file in member_dir.glob(f"{member}__*"):
+        m = re.match(fr"^\Q{member}\E__([0-9]{{2}})", file.stem)
+        if m:
+            try:
+                idx = int(m.group(1))
+                if idx > max_idx:
+                    max_idx = idx
+            except ValueError:
+                continue
+    return f"{member}__{max_idx + 1:02d}{suffix}"
+
+
+def save_user_photo(group_key: str, member: str, data: bytes, suffix: str) -> bool:
+    """Сохраняет фото локально и в Dropbox. Возвращает ``True`` при успехе."""
+    filename = _next_member_filename(group_key, member, suffix)
+    local_dir = Path(DROPBOX_ROOT) / "kpop_images" / group_key / member
+    local_dir.mkdir(parents=True, exist_ok=True)
+    local_path = local_dir / filename
+    try:
+        with local_path.open("wb") as f:
+            f.write(data)
+    except OSError:
+        return False
+
+    # Обновляем локальную карту
+    rel_path = str(local_path.relative_to(DROPBOX_ROOT)).replace("\\", "/")
+    norm = re.sub(r"[-_\s]", "", member.lower())
+    DROPBOX_PHOTOS.setdefault(norm, []).append(f"/{rel_path}")
+
+    # Попытка загрузить в Dropbox
+    try:
+        import dropbox  # type: ignore
+        app_key = os.environ.get("DROPBOX_APP_KEY")
+        app_secret = os.environ.get("DROPBOX_APP_SECRET")
+        refresh_token = os.environ.get("DROPBOX_REFRESH_TOKEN")
+        if all([app_key, app_secret, refresh_token]):
+            dbx = dropbox.Dropbox(
+                app_key=app_key,
+                app_secret=app_secret,
+                oauth2_refresh_token=refresh_token,
+            )
+            remote_path = f"/kpop_images/{group_key}/{member}/{filename}"
+            dbx.files_upload(data, remote_path, mode=dropbox.files.WriteMode.overwrite)
+    except Exception:
+        pass
+    return True
 
 # =======================
 #  СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ
@@ -1008,6 +1102,35 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
         return
 
+    # --- Загрузка пользовательских фото
+    if data == "menu_upload":
+        context.user_data["mode"] = "upload_password"
+        await query.message.reply_text(
+            "Введите пароль для загрузки фото:", reply_markup=back_keyboard()
+        )
+        return
+
+    if data.startswith(CB_UPLOAD_GROUP):
+        group_key = data.split(":", 1)[1]
+        context.user_data["upload_group"] = group_key
+        context.user_data["mode"] = "upload_member"
+        title = correct_grnames.get(group_key, group_key)
+        await query.message.reply_text(
+            f"Выберите участника группы {title}:",
+            reply_markup=upload_members_keyboard(group_key),
+        )
+        return
+
+    if data.startswith(CB_UPLOAD_MEMBER):
+        member = data.split(":", 1)[1]
+        context.user_data["upload_member"] = member
+        context.user_data["mode"] = "upload_wait_photo"
+        await query.message.reply_text(
+            f"Отправьте фото для {member} (до 8 МБ)",
+            reply_markup=back_keyboard(),
+        )
+        return
+
     # --- Показать все группы
     if data == "menu_show_all":
         lines: List[str] = []
@@ -1088,6 +1211,19 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     mode = context.user_data.get("mode", "idle")
     text = (update.message.text or "").strip()
+
+    # --- Проверка пароля для загрузки фото
+    if mode == "upload_password":
+        if UPLOAD_PASSWORD and text == UPLOAD_PASSWORD:
+            context.user_data["mode"] = "upload_group"
+            await update.message.reply_text(
+                "Выберите группу:", reply_markup=upload_groups_keyboard()
+            )
+        else:
+            await update.message.reply_text(
+                "Неверный пароль. Попробуйте снова:", reply_markup=back_keyboard()
+            )
+        return
 
     # --- Найти участника
     if mode == "find":
@@ -1264,6 +1400,37 @@ async def on_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             reply_markup=menu_keyboard(),
         )
 
+async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    mode = context.user_data.get("mode", "idle")
+    if mode == "upload_wait_photo":
+        group_key = context.user_data.get("upload_group")
+        member = context.user_data.get("upload_member")
+        if not group_key or not member:
+            await update.message.reply_text("Не выбрана группа или участник.", reply_markup=back_keyboard())
+            reset_state(context)
+            return
+        photo = update.message.photo[-1]
+        if photo.file_size and photo.file_size > 8 * 1024 * 1024:
+            await update.message.reply_text(
+                "Допустимый объем фото — до 8Мб.", reply_markup=back_keyboard()
+            )
+            return
+        file = await photo.get_file()
+        data = await file.download_as_bytearray()
+        suffix = Path(file.file_path or "").suffix or ".jpg"
+        ok = save_user_photo(group_key, member, bytes(data), suffix)  # type: ignore[arg-type]
+        if ok:
+            await update.message.reply_text(
+                "Фото успешно загружено!", reply_markup=back_keyboard()
+            )
+        else:
+            await update.message.reply_text(
+                "Не удалось сохранить фото.", reply_markup=back_keyboard()
+            )
+        reset_state(context)
+        return
+    await on_unknown(update, context)
+
 # =======================
 #  НАСТРОЙКА PTB + FASTAPI (WEBHOOK)
 # =======================
@@ -1286,8 +1453,9 @@ if TOKEN and PUBLIC_URL:
     # Регистрация хендлеров
     application.add_handler(CommandHandler("start", cmd_start))
     application.add_handler(CallbackQueryHandler(on_callback))
+    application.add_handler(MessageHandler(filters.PHOTO, on_photo))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
-    application.add_handler(MessageHandler(~filters.TEXT, on_unknown))
+    application.add_handler(MessageHandler(~(filters.TEXT | filters.PHOTO), on_unknown))
 
 WEBHOOK_PATH = "/webhook"
 WEBHOOK_URL = f"{PUBLIC_URL}{WEBHOOK_PATH}"
