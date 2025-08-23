@@ -425,12 +425,14 @@ def in_game_keyboard() -> InlineKeyboardMarkup:
 CB_UPLOAD_GROUP = "upload_group:"    # выбор группы для загрузки
 CB_UPLOAD_MEMBER = "upload_member:"  # выбор участника для загрузки
 CB_UPLOAD_MORE = "upload_more"       # добавить ещё фото
+CB_UPLOAD_OTHER = "upload_other"     # добавить фото для другого айдола
 
 
 def upload_success_keyboard() -> InlineKeyboardMarkup:
     """Клавиатура после успешной загрузки фото."""
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Добавить ещё фото", callback_data=CB_UPLOAD_MORE)],
+        [InlineKeyboardButton("Добавить ещё фото для этого айдола", callback_data=CB_UPLOAD_MORE)],
+        [InlineKeyboardButton("Добавить для других айдолов", callback_data=CB_UPLOAD_OTHER)],
         [InlineKeyboardButton("📁 В каталог фото", callback_data="menu_catalog")],
         [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
     ])
@@ -1239,6 +1241,15 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await query.message.reply_text(
             f"Отправьте фото для {member} (до 8 МБ)",
             reply_markup=back_keyboard(),
+        )
+        return
+
+    if data == CB_UPLOAD_OTHER:
+        context.user_data["mode"] = "upload_group"
+        context.user_data.pop("upload_group", None)
+        context.user_data.pop("upload_member", None)
+        await query.message.reply_text(
+            "Выберите группу:", reply_markup=upload_groups_keyboard()
         )
         return
 
