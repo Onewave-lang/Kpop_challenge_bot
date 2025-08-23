@@ -433,6 +433,14 @@ def in_game_keyboard() -> InlineKeyboardMarkup:
 # ---- callback префиксы для загрузки фото
 CB_UPLOAD_GROUP = "upload_group:"    # выбор группы для загрузки
 CB_UPLOAD_MEMBER = "upload_member:"  # выбор участника для загрузки
+CB_UPLOAD_MORE = "upload_more"       # добавить ещё фото
+
+
+def upload_success_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("Добавить ещё фото", callback_data=CB_UPLOAD_MORE)],
+        [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
+    ])
 
 # ---- callback "префиксы" для режима обучения
 CB_LEARN_PICK = "learn_pick:"       # выбор группы
@@ -510,17 +518,57 @@ def _next_member_filename(group_key: str, member: str, suffix: str) -> str:
     """Возвращает имя файла вида ``{member}__NN{suffix}`` с незанятым номером."""
     member_dir = Path(DROPBOX_ROOT) / "kpop_images" / group_key / member
     member_dir.mkdir(parents=True, exist_ok=True)
-    max_idx = 0
+
+    used: Set[int] = set()
+    pattern = re.compile(rf"^{re.escape(member)}__([0-9]{{2}})")
+
+    # локальные файлы
     for file in member_dir.glob(f"{member}__*"):
-        m = re.match(rf"^{re.escape(member)}__([0-9]{{2}})", file.stem)
+        m = pattern.match(file.stem)
         if m:
             try:
-                idx = int(m.group(1))
-                if idx > max_idx:
-                    max_idx = idx
+                used.add(int(m.group(1)))
             except ValueError:
                 continue
-    return f"{member}__{max_idx + 1:02d}{suffix}"
+
+    # файлы в Dropbox (если доступно API)
+    try:
+        import dropbox  # type: ignore
+
+        app_key = os.environ.get("DROPBOX_APP_KEY")
+        app_secret = os.environ.get("DROPBOX_APP_SECRET")
+        refresh_token = os.environ.get("DROPBOX_REFRESH_TOKEN")
+        if all([app_key, app_secret, refresh_token]):
+            dbx = dropbox.Dropbox(
+                app_key=app_key,
+                app_secret=app_secret,
+                oauth2_refresh_token=refresh_token,
+            )
+            remote_folder = f"/kpop_images/{group_key}/{member}"
+            try:
+                res = dbx.files_list_folder(remote_folder)
+                while True:
+                    for entry in res.entries:
+                        if isinstance(entry, dropbox.files.FileMetadata):
+                            m = pattern.match(Path(entry.name).stem)
+                            if m:
+                                try:
+                                    used.add(int(m.group(1)))
+                                except ValueError:
+                                    continue
+                    if res.has_more:
+                        res = dbx.files_list_folder_continue(res.cursor)
+                    else:
+                        break
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    idx = 1
+    while idx in used:
+        idx += 1
+    return f"{member}__{idx:02d}{suffix}"
 
 
 def save_user_photo(group_key: str, member: str, data: bytes, suffix: str) -> bool:
@@ -1201,6 +1249,20 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
         return
 
+    if data == CB_UPLOAD_MORE:
+        member = context.user_data.get("upload_member")
+        if not member:
+            await query.message.reply_text(
+                "Не выбран участник.", reply_markup=back_keyboard()
+            )
+            return
+        context.user_data["mode"] = "upload_wait_photo"
+        await query.message.reply_text(
+            f"Отправьте фото для {member} (до 8 МБ)",
+            reply_markup=back_keyboard(),
+        )
+        return
+
     # --- Показать все группы
     if data == "menu_show_all":
         try:
@@ -1525,7 +1587,6 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await update.message.reply_text(
                     "Не удалось сохранить фото.", reply_markup=back_keyboard()
                 )
-        reset_state(context)
         return
     await on_unknown(update, context)
 
