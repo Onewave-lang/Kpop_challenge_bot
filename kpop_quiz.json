@@ -1,14 +1,3002 @@
 [
-  {"question": "Сколько участниц в группе BLACKPINK?", "answer": "4"},
-  {"question": "Как называется дебютный сингл группы ITZY?", "answer": "Dalla Dalla"},
-  {"question": "Как зовут лидера группы Twice?", "answer": "Jihyo", "idol": "Jihyo"},
-  {"question": "Из какой страны родом участница BLACKPINK Лиза?", "answer": "Таиланд", "idol": "Lisa"},
-  {"question": "В каком году дебютировала группа BTS?", "answer": "2013"},
-  {"question": "Как зовут макнэ группы Red Velvet?", "answer": "Yeri", "idol": "Yeri"},
-  {"question": "Какой айдол известен как \"Nation's Little Sister\"?", "answer": "IU", "idol": "IU"},
-  {"question": "Как называется фан-клуб группы EXO?", "answer": "EXO-L"},
-  {"question": "Кто является лидером группы Stray Kids?", "answer": "Bang Chan", "idol": "Bang Chan"},
-  {"question": "Как зовут визуал группы Aespa?", "answer": "Karina", "idol": "Karina"},
-  {"question": "Как называется дебютный альбом группы NewJeans?", "answer": "New Jeans"},
-  {"question": "Сколько участников в группе Seventeen?", "answer": "13"}
+  {
+    "question": "Кто лидер Le Sserafim?",
+    "options": [
+      "Chaewon",
+      "Yeji",
+      "Irene",
+      "Karina"
+    ],
+    "answer_index": 0,
+    "answer_text": "Chaewon",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Itzy?",
+    "options": [
+      "Yeji",
+      "Chaewon",
+      "Irene",
+      "Karina"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yeji",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Red Velvet?",
+    "options": [
+      "Irene",
+      "Chaewon",
+      "Yeji",
+      "Karina"
+    ],
+    "answer_index": 0,
+    "answer_text": "Irene",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Aespa?",
+    "options": [
+      "Karina",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Karina",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер ENHYPEN?",
+    "options": [
+      "Jungwon",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Jungwon",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер TXT?",
+    "options": [
+      "Soobin",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Soobin",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Stray Kids?",
+    "options": [
+      "Bang Chan",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Bang Chan",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Twice?",
+    "options": [
+      "Jihyo",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Jihyo",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер I-dle?",
+    "options": [
+      "Soyeon",
+      "Chaewon",
+      "Yeji",
+      "Irene"
+    ],
+    "answer_index": 0,
+    "answer_text": "Soyeon",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто maknae в Le Sserafim?",
+    "options": [
+      "Eunchae",
+      "Yuna",
+      "Yeri",
+      "Ningning"
+    ],
+    "answer_index": 0,
+    "answer_text": "Eunchae",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Itzy?",
+    "options": [
+      "Yuna",
+      "Eunchae",
+      "Yeri",
+      "Ningning"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yuna",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Red Velvet?",
+    "options": [
+      "Yeri",
+      "Eunchae",
+      "Yuna",
+      "Ningning"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yeri",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Aespa?",
+    "options": [
+      "Ningning",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Ningning",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в ENHYPEN?",
+    "options": [
+      "Niki",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Niki",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в TXT?",
+    "options": [
+      "HueningKai",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "HueningKai",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Stray Kids?",
+    "options": [
+      "IN",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "IN",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Twice?",
+    "options": [
+      "Tzuyu",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Tzuyu",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в NewJeans?",
+    "options": [
+      "Hyein",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Hyein",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Baby Monster?",
+    "options": [
+      "Chiquita",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Chiquita",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в ZeroBaseOne?",
+    "options": [
+      "Yujin",
+      "Eunchae",
+      "Yuna",
+      "Yeri"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yujin",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "К какой группе относится «Yunah»?",
+    "options": [
+      "ILLIT",
+      "I-dle",
+      "All Day Project",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "ILLIT",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Minju»?",
+    "options": [
+      "ILLIT",
+      "I-dle",
+      "All Day Project",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "ILLIT",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Miyeon»?",
+    "options": [
+      "I-dle",
+      "ILLIT",
+      "All Day Project",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "I-dle",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Minnie»?",
+    "options": [
+      "I-dle",
+      "ILLIT",
+      "All Day Project",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "I-dle",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Annie»?",
+    "options": [
+      "All Day Project",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "All Day Project",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Tarzzan»?",
+    "options": [
+      "All Day Project",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "All Day Project",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Sakura»?",
+    "options": [
+      "Le Sserafim",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Le Sserafim",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Chaewon»?",
+    "options": [
+      "Le Sserafim",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Le Sserafim",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Daniela»?",
+    "options": [
+      "Katseye",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Katseye",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Lara»?",
+    "options": [
+      "Katseye",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Katseye",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Yeji»?",
+    "options": [
+      "Itzy",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Itzy",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Lia»?",
+    "options": [
+      "Itzy",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Itzy",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Irene»?",
+    "options": [
+      "Red Velvet",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Red Velvet",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Seulgi»?",
+    "options": [
+      "Red Velvet",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Red Velvet",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Minji»?",
+    "options": [
+      "NewJeans",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "NewJeans",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Hanni»?",
+    "options": [
+      "NewJeans",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "NewJeans",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jisoo»?",
+    "options": [
+      "BLACKPINK",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "BLACKPINK",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jennie»?",
+    "options": [
+      "BLACKPINK",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "BLACKPINK",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Karina»?",
+    "options": [
+      "Aespa",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Aespa",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Giselle»?",
+    "options": [
+      "Aespa",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Aespa",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Ruka»?",
+    "options": [
+      "Baby Monster",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Baby Monster",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Pharita»?",
+    "options": [
+      "Baby Monster",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Baby Monster",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Julie»?",
+    "options": [
+      "Kiss of Life",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Kiss of Life",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Natty»?",
+    "options": [
+      "Kiss of Life",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Kiss of Life",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jungwon»?",
+    "options": [
+      "ENHYPEN",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "ENHYPEN",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Heeseung»?",
+    "options": [
+      "ENHYPEN",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "ENHYPEN",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Yeonjun»?",
+    "options": [
+      "TXT",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "TXT",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Soobin»?",
+    "options": [
+      "TXT",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "TXT",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jiwoong»?",
+    "options": [
+      "ZeroBaseOne",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "ZeroBaseOne",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Hao»?",
+    "options": [
+      "ZeroBaseOne",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "ZeroBaseOne",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Bang Chan»?",
+    "options": [
+      "Stray Kids",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Stray Kids",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Lee Know»?",
+    "options": [
+      "Stray Kids",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Stray Kids",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Nayeon»?",
+    "options": [
+      "Twice",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Twice",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jeongyeon»?",
+    "options": [
+      "Twice",
+      "ILLIT",
+      "I-dle",
+      "All Day Project"
+    ],
+    "answer_index": 0,
+    "answer_text": "Twice",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится трек «Magnetic»?",
+    "options": [
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim",
+      "Itzy"
+    ],
+    "answer_index": 0,
+    "answer_text": "ILLIT",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «LATATA»?",
+    "options": [
+      "I-dle",
+      "ILLIT",
+      "Le Sserafim",
+      "Itzy"
+    ],
+    "answer_index": 0,
+    "answer_text": "I-dle",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «FEARLESS»?",
+    "options": [
+      "Le Sserafim",
+      "ILLIT",
+      "I-dle",
+      "Itzy"
+    ],
+    "answer_index": 0,
+    "answer_text": "Le Sserafim",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «DALLA DALLA»?",
+    "options": [
+      "Itzy",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Itzy",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Happiness»?",
+    "options": [
+      "Red Velvet",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Red Velvet",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Attention»?",
+    "options": [
+      "NewJeans",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "NewJeans",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Boombayah»?",
+    "options": [
+      "BLACKPINK",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "BLACKPINK",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Black Mamba»?",
+    "options": [
+      "Aespa",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Aespa",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Batter Up»?",
+    "options": [
+      "Baby Monster",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Baby Monster",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Shhh»?",
+    "options": [
+      "Kiss of Life",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Kiss of Life",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Given-Taken»?",
+    "options": [
+      "ENHYPEN",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "ENHYPEN",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «CROWN»?",
+    "options": [
+      "TXT",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "TXT",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «In Bloom»?",
+    "options": [
+      "ZeroBaseOne",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "ZeroBaseOne",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «District 9»?",
+    "options": [
+      "Stray Kids",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Stray Kids",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Like OOH-AHH»?",
+    "options": [
+      "Twice",
+      "ILLIT",
+      "I-dle",
+      "Le Sserafim"
+    ],
+    "answer_index": 0,
+    "answer_text": "Twice",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "В каком году дебютировали ILLIT?",
+    "options": [
+      "2024",
+      "2023",
+      "2025",
+      "2022"
+    ],
+    "answer_index": 0,
+    "answer_text": "2024",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали I-dle?",
+    "options": [
+      "2018",
+      "2017",
+      "2019",
+      "2016"
+    ],
+    "answer_index": 0,
+    "answer_text": "2018",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Le Sserafim?",
+    "options": [
+      "2022",
+      "2021",
+      "2023",
+      "2020"
+    ],
+    "answer_index": 0,
+    "answer_text": "2022",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Itzy?",
+    "options": [
+      "2019",
+      "2018",
+      "2020",
+      "2017"
+    ],
+    "answer_index": 0,
+    "answer_text": "2019",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Red Velvet?",
+    "options": [
+      "2014",
+      "2013",
+      "2015",
+      "2012"
+    ],
+    "answer_index": 0,
+    "answer_text": "2014",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали NewJeans?",
+    "options": [
+      "2022",
+      "2021",
+      "2023",
+      "2020"
+    ],
+    "answer_index": 0,
+    "answer_text": "2022",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали BLACKPINK?",
+    "options": [
+      "2016",
+      "2015",
+      "2017",
+      "2014"
+    ],
+    "answer_index": 0,
+    "answer_text": "2016",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Aespa?",
+    "options": [
+      "2020",
+      "2019",
+      "2021",
+      "2018"
+    ],
+    "answer_index": 0,
+    "answer_text": "2020",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Baby Monster?",
+    "options": [
+      "2023",
+      "2022",
+      "2024",
+      "2021"
+    ],
+    "answer_index": 0,
+    "answer_text": "2023",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Kiss of Life?",
+    "options": [
+      "2023",
+      "2022",
+      "2024",
+      "2021"
+    ],
+    "answer_index": 0,
+    "answer_text": "2023",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали ENHYPEN?",
+    "options": [
+      "2020",
+      "2019",
+      "2021",
+      "2018"
+    ],
+    "answer_index": 0,
+    "answer_text": "2020",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали TXT?",
+    "options": [
+      "2019",
+      "2018",
+      "2020",
+      "2017"
+    ],
+    "answer_index": 0,
+    "answer_text": "2019",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали ZeroBaseOne?",
+    "options": [
+      "2023",
+      "2022",
+      "2024",
+      "2021"
+    ],
+    "answer_index": 0,
+    "answer_text": "2023",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Stray Kids?",
+    "options": [
+      "2018",
+      "2017",
+      "2019",
+      "2016"
+    ],
+    "answer_index": 0,
+    "answer_text": "2018",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Twice?",
+    "options": [
+      "2015",
+      "2014",
+      "2016",
+      "2013"
+    ],
+    "answer_index": 0,
+    "answer_text": "2015",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "Под каким лейблом работает NewJeans?",
+    "options": [
+      "ADOR",
+      "Source Music",
+      "Belift Lab",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "ADOR",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Le Sserafim?",
+    "options": [
+      "Source Music",
+      "ADOR",
+      "Belift Lab",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "Source Music",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает ENHYPEN?",
+    "options": [
+      "Belift Lab",
+      "ADOR",
+      "Source Music",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "Belift Lab",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает TXT?",
+    "options": [
+      "BIGHIT MUSIC",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "BIGHIT MUSIC",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Itzy?",
+    "options": [
+      "JYP Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "JYP Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Red Velvet?",
+    "options": [
+      "SM Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "SM Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает BLACKPINK?",
+    "options": [
+      "YG Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "YG Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Aespa?",
+    "options": [
+      "SM Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "SM Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Baby Monster?",
+    "options": [
+      "YG Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "YG Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Stray Kids?",
+    "options": [
+      "JYP Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "JYP Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает ZeroBaseOne?",
+    "options": [
+      "WakeOne",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "WakeOne",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает ILLIT?",
+    "options": [
+      "Belift Lab",
+      "ADOR",
+      "Source Music",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "Belift Lab",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Kiss of Life?",
+    "options": [
+      "S2 Entertainment",
+      "ADOR",
+      "Source Music",
+      "Belift Lab"
+    ],
+    "answer_index": 0,
+    "answer_text": "S2 Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Через какое шоу сформировались ILLIT?",
+    "options": [
+      "R U Next?",
+      "I-LAND",
+      "Boys Planet",
+      "The Debut: Dream Academy"
+    ],
+    "answer_index": 0,
+    "answer_text": "R U Next?",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались ENHYPEN?",
+    "options": [
+      "I-LAND",
+      "R U Next?",
+      "Boys Planet",
+      "The Debut: Dream Academy"
+    ],
+    "answer_index": 0,
+    "answer_text": "I-LAND",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались ZeroBaseOne?",
+    "options": [
+      "Boys Planet",
+      "R U Next?",
+      "I-LAND",
+      "The Debut: Dream Academy"
+    ],
+    "answer_index": 0,
+    "answer_text": "Boys Planet",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались Katseye?",
+    "options": [
+      "The Debut: Dream Academy",
+      "R U Next?",
+      "I-LAND",
+      "Boys Planet"
+    ],
+    "answer_index": 0,
+    "answer_text": "The Debut: Dream Academy",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Какой из треков принадлежит ILLIT?",
+    "options": [
+      "Magnetic",
+      "LATATA",
+      "FEARLESS",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "Magnetic",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит I-dle?",
+    "options": [
+      "LATATA",
+      "Magnetic",
+      "FEARLESS",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "LATATA",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Le Sserafim?",
+    "options": [
+      "FEARLESS",
+      "Magnetic",
+      "LATATA",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "FEARLESS",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Itzy?",
+    "options": [
+      "DALLA DALLA",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "DALLA DALLA",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Red Velvet?",
+    "options": [
+      "Happiness",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Happiness",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит NewJeans?",
+    "options": [
+      "Attention",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Attention",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит BLACKPINK?",
+    "options": [
+      "Boombayah",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Boombayah",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Aespa?",
+    "options": [
+      "Black Mamba",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Black Mamba",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Baby Monster?",
+    "options": [
+      "Batter Up",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Batter Up",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Kiss of Life?",
+    "options": [
+      "Shhh",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Shhh",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит ENHYPEN?",
+    "options": [
+      "Given-Taken",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Given-Taken",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит TXT?",
+    "options": [
+      "CROWN",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "CROWN",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит ZeroBaseOne?",
+    "options": [
+      "In Bloom",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "In Bloom",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Stray Kids?",
+    "options": [
+      "District 9",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "District 9",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Twice?",
+    "options": [
+      "Like OOH-AHH",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Like OOH-AHH",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в ILLIT?",
+    "options": [
+      "Yunah",
+      "Minju",
+      "Moka",
+      "Miyeon"
+    ],
+    "answer_index": 3,
+    "answer_text": "Miyeon",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в I-dle?",
+    "options": [
+      "Miyeon",
+      "Minnie",
+      "Soyeon",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в All Day Project?",
+    "options": [
+      "Annie",
+      "Tarzzan",
+      "Bailey",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Le Sserafim?",
+    "options": [
+      "Sakura",
+      "Chaewon",
+      "Yunjin",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Katseye?",
+    "options": [
+      "Daniela",
+      "Lara",
+      "Manon",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Itzy?",
+    "options": [
+      "Yeji",
+      "Lia",
+      "Ryujin",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Red Velvet?",
+    "options": [
+      "Irene",
+      "Seulgi",
+      "Wendy",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в NewJeans?",
+    "options": [
+      "Minji",
+      "Hanni",
+      "Danielle",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в BLACKPINK?",
+    "options": [
+      "Jisoo",
+      "Jennie",
+      "Rose",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Aespa?",
+    "options": [
+      "Karina",
+      "Giselle",
+      "Winter",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Baby Monster?",
+    "options": [
+      "Ruka",
+      "Pharita",
+      "Asa",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Kiss of Life?",
+    "options": [
+      "Julie",
+      "Natty",
+      "Belle",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в ENHYPEN?",
+    "options": [
+      "Jungwon",
+      "Heeseung",
+      "Jay",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в TXT?",
+    "options": [
+      "Yeonjun",
+      "Soobin",
+      "Beomgyu",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в ZeroBaseOne?",
+    "options": [
+      "Jiwoong",
+      "Hao",
+      "Hanbin",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Stray Kids?",
+    "options": [
+      "Bang Chan",
+      "Lee Know",
+      "Changbin",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Twice?",
+    "options": [
+      "Nayeon",
+      "Jeongyeon",
+      "Momo",
+      "Yunah"
+    ],
+    "answer_index": 3,
+    "answer_text": "Yunah",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Сколько участников в Katseye (по текущему списку)?",
+    "options": [
+      "6",
+      "5",
+      "7",
+      "7"
+    ],
+    "answer_index": 0,
+    "answer_text": "6",
+    "topic": "medium:size"
+  },
+  {
+    "question": "Сколько участников в All Day Project (по текущему списку)?",
+    "options": [
+      "5",
+      "4",
+      "6",
+      "7"
+    ],
+    "answer_index": 0,
+    "answer_text": "5",
+    "topic": "medium:size"
+  },
+  {
+    "question": "Сколько участников в Stray Kids (по текущему списку)?",
+    "options": [
+      "8",
+      "7",
+      "9",
+      "7"
+    ],
+    "answer_index": 0,
+    "answer_text": "8",
+    "topic": "medium:size"
+  },
+  {
+    "question": "Сколько участников в Twice (по текущему списку)?",
+    "options": [
+      "9",
+      "8",
+      "10",
+      "7"
+    ],
+    "answer_index": 0,
+    "answer_text": "9",
+    "topic": "medium:size"
+  },
+  {
+    "question": "Кто дебютировал раньше: Twice или BLACKPINK?",
+    "options": [
+      "Twice",
+      "BLACKPINK",
+      "оба в один год",
+      "нельзя определить"
+    ],
+    "answer_index": 0,
+    "answer_text": "Twice",
+    "topic": "hard:compare_debut"
+  },
+  {
+    "question": "Кто дебютировал раньше: Stray Kids или I-dle?",
+    "options": [
+      "Stray Kids",
+      "I-dle",
+      "оба в один год",
+      "нельзя определить"
+    ],
+    "answer_index": 2,
+    "answer_text": "оба в один год",
+    "topic": "hard:compare_debut"
+  },
+  {
+    "question": "Кто дебютировал раньше: TXT или ENHYPEN?",
+    "options": [
+      "TXT",
+      "ENHYPEN",
+      "оба в один год",
+      "нельзя определить"
+    ],
+    "answer_index": 0,
+    "answer_text": "TXT",
+    "topic": "hard:compare_debut"
+  },
+  {
+    "question": "Кто дебютировал раньше: ILLIT или ZeroBaseOne?",
+    "options": [
+      "ILLIT",
+      "ZeroBaseOne",
+      "оба в один год",
+      "нельзя определить"
+    ],
+    "answer_index": 1,
+    "answer_text": "ZeroBaseOne",
+    "topic": "hard:compare_debut"
+  },
+  {
+    "question": "Кто дебютировал раньше: Aespa или NewJeans?",
+    "options": [
+      "Aespa",
+      "NewJeans",
+      "оба в один год",
+      "нельзя определить"
+    ],
+    "answer_index": 0,
+    "answer_text": "Aespa",
+    "topic": "hard:compare_debut"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом ILLIT?",
+    "options": [
+      "Magnetic",
+      "LATATA",
+      "FEARLESS",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "Magnetic",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом I-dle?",
+    "options": [
+      "LATATA",
+      "Magnetic",
+      "FEARLESS",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "LATATA",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом Le Sserafim?",
+    "options": [
+      "FEARLESS",
+      "Magnetic",
+      "LATATA",
+      "DALLA DALLA"
+    ],
+    "answer_index": 0,
+    "answer_text": "FEARLESS",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом Itzy?",
+    "options": [
+      "DALLA DALLA",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "DALLA DALLA",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом Red Velvet?",
+    "options": [
+      "Happiness",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Happiness",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом NewJeans?",
+    "options": [
+      "Attention",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Attention",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом BLACKPINK?",
+    "options": [
+      "Boombayah / Whistle",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Boombayah / Whistle",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Какой титульный трек связан с дебютом Aespa?",
+    "options": [
+      "Black Mamba",
+      "Magnetic",
+      "LATATA",
+      "FEARLESS"
+    ],
+    "answer_index": 0,
+    "answer_text": "Black Mamba",
+    "topic": "hard:debut_title"
+  },
+  {
+    "question": "Кто лидер BTS?",
+    "options": [
+      "RM",
+      "S.Coups",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "RM",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Seventeen?",
+    "options": [
+      "S.Coups",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "S.Coups",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер EXO?",
+    "options": [
+      "Suho",
+      "RM",
+      "S.Coups",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Suho",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер NCT 127?",
+    "options": [
+      "Taeyong",
+      "RM",
+      "S.Coups",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Taeyong",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер SHINee?",
+    "options": [
+      "Onew",
+      "RM",
+      "S.Coups",
+      "Suho"
+    ],
+    "answer_index": 0,
+    "answer_text": "Onew",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер GOT7?",
+    "options": [
+      "JB",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "JB",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Monsta X?",
+    "options": [
+      "Shownu",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Shownu",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Ateez?",
+    "options": [
+      "Hongjoong",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Hongjoong",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер Mamamoo?",
+    "options": [
+      "Solar",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Solar",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто лидер IVE?",
+    "options": [
+      "Yujin",
+      "RM",
+      "Suho",
+      "Onew"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yujin",
+    "topic": "easy:leaders"
+  },
+  {
+    "question": "Кто maknae в BTS?",
+    "options": [
+      "Jungkook",
+      "Dino",
+      "Sehun",
+      "Jisung"
+    ],
+    "answer_index": 0,
+    "answer_text": "Jungkook",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Seventeen?",
+    "options": [
+      "Dino",
+      "Jungkook",
+      "Sehun",
+      "Jisung"
+    ],
+    "answer_index": 0,
+    "answer_text": "Dino",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в EXO?",
+    "options": [
+      "Sehun",
+      "Jungkook",
+      "Dino",
+      "Jisung"
+    ],
+    "answer_index": 0,
+    "answer_text": "Sehun",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в NCT?",
+    "options": [
+      "Jisung",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Jisung",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в SHINee?",
+    "options": [
+      "Taemin",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Taemin",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в GOT7?",
+    "options": [
+      "Yugyeom",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Yugyeom",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Monsta X?",
+    "options": [
+      "I.M",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "I.M",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Ateez?",
+    "options": [
+      "Jongho",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Jongho",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в Mamamoo?",
+    "options": [
+      "Hwasa",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Hwasa",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "Кто maknae в IVE?",
+    "options": [
+      "Leeseo",
+      "Jungkook",
+      "Dino",
+      "Sehun"
+    ],
+    "answer_index": 0,
+    "answer_text": "Leeseo",
+    "topic": "easy:maknae"
+  },
+  {
+    "question": "К какой группе относится «RM»?",
+    "options": [
+      "BTS",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "BTS",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jin»?",
+    "options": [
+      "BTS",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "BTS",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Woozi»?",
+    "options": [
+      "Seventeen",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "Seventeen",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Mingyu»?",
+    "options": [
+      "Seventeen",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "Seventeen",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Kai»?",
+    "options": [
+      "EXO",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "EXO",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «D.O.»?",
+    "options": [
+      "EXO",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "EXO",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Key»?",
+    "options": [
+      "SHINee",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "SHINee",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Minho»?",
+    "options": [
+      "SHINee",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "SHINee",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Jackson»?",
+    "options": [
+      "GOT7",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "GOT7",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «BamBam»?",
+    "options": [
+      "GOT7",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "GOT7",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Shownu»?",
+    "options": [
+      "Monsta X",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Monsta X",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Hyungwon»?",
+    "options": [
+      "Monsta X",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Monsta X",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Hongjoong»?",
+    "options": [
+      "Ateez",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Ateez",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «San»?",
+    "options": [
+      "Ateez",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Ateez",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Solar»?",
+    "options": [
+      "Mamamoo",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Mamamoo",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Hwasa»?",
+    "options": [
+      "Mamamoo",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Mamamoo",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Yujin»?",
+    "options": [
+      "IVE",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "IVE",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Wonyoung»?",
+    "options": [
+      "IVE",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "IVE",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Sumin»?",
+    "options": [
+      "STAYC",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "STAYC",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится «Sieun»?",
+    "options": [
+      "STAYC",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "STAYC",
+    "topic": "easy:member→group"
+  },
+  {
+    "question": "К какой группе относится трек «Fire»?",
+    "options": [
+      "BTS",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "BTS",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Adore U»?",
+    "options": [
+      "Seventeen",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "Seventeen",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Growl»?",
+    "options": [
+      "EXO",
+      "SHINee",
+      "GOT7",
+      "Monsta X"
+    ],
+    "answer_index": 0,
+    "answer_text": "EXO",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Cherry Bomb»?",
+    "options": [
+      "NCT 127",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "NCT 127",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Ring Ding Dong»?",
+    "options": [
+      "SHINee",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "SHINee",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Hard Carry»?",
+    "options": [
+      "GOT7",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "GOT7",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Hero»?",
+    "options": [
+      "Monsta X",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Monsta X",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Say My Name»?",
+    "options": [
+      "Ateez",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Ateez",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Starry Night»?",
+    "options": [
+      "Mamamoo",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Mamamoo",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Love Dive»?",
+    "options": [
+      "IVE",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "IVE",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «ASAP»?",
+    "options": [
+      "STAYC",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "STAYC",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Bon Bon Chocolat»?",
+    "options": [
+      "Everglow",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Everglow",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «So What»?",
+    "options": [
+      "Loona",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Loona",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «WA DA DA»?",
+    "options": [
+      "Kep1er",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Kep1er",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "К какой группе относится трек «Scream»?",
+    "options": [
+      "Dreamcatcher",
+      "BTS",
+      "Seventeen",
+      "EXO"
+    ],
+    "answer_index": 0,
+    "answer_text": "Dreamcatcher",
+    "topic": "easy:song→group"
+  },
+  {
+    "question": "В каком году дебютировали BTS?",
+    "options": [
+      "2013",
+      "2012",
+      "2014",
+      "2011"
+    ],
+    "answer_index": 0,
+    "answer_text": "2013",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Seventeen?",
+    "options": [
+      "2015",
+      "2014",
+      "2016",
+      "2013"
+    ],
+    "answer_index": 0,
+    "answer_text": "2015",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали EXO?",
+    "options": [
+      "2012",
+      "2011",
+      "2013",
+      "2010"
+    ],
+    "answer_index": 0,
+    "answer_text": "2012",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали NCT 127?",
+    "options": [
+      "2016",
+      "2015",
+      "2017",
+      "2014"
+    ],
+    "answer_index": 0,
+    "answer_text": "2016",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали SHINee?",
+    "options": [
+      "2008",
+      "2007",
+      "2009",
+      "2006"
+    ],
+    "answer_index": 0,
+    "answer_text": "2008",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали GOT7?",
+    "options": [
+      "2014",
+      "2013",
+      "2015",
+      "2012"
+    ],
+    "answer_index": 0,
+    "answer_text": "2014",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Monsta X?",
+    "options": [
+      "2015",
+      "2014",
+      "2016",
+      "2013"
+    ],
+    "answer_index": 0,
+    "answer_text": "2015",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Ateez?",
+    "options": [
+      "2018",
+      "2017",
+      "2019",
+      "2016"
+    ],
+    "answer_index": 0,
+    "answer_text": "2018",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали Mamamoo?",
+    "options": [
+      "2014",
+      "2013",
+      "2015",
+      "2012"
+    ],
+    "answer_index": 0,
+    "answer_text": "2014",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "В каком году дебютировали IVE?",
+    "options": [
+      "2021",
+      "2020",
+      "2022",
+      "2019"
+    ],
+    "answer_index": 0,
+    "answer_text": "2021",
+    "topic": "medium:debut_year"
+  },
+  {
+    "question": "Под каким лейблом работает BTS?",
+    "options": [
+      "BIGHIT MUSIC",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "BIGHIT MUSIC",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Seventeen?",
+    "options": [
+      "Pledis Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "Pledis Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает EXO?",
+    "options": [
+      "SM Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "SM Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает NCT 127?",
+    "options": [
+      "SM Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "SM Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает SHINee?",
+    "options": [
+      "SM Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "SM Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает GOT7?",
+    "options": [
+      "JYP Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "JYP Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Monsta X?",
+    "options": [
+      "Starship Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "Starship Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Ateez?",
+    "options": [
+      "KQ Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "KQ Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает Mamamoo?",
+    "options": [
+      "RBW",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "RBW",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Под каким лейблом работает STAYC?",
+    "options": [
+      "High Up Entertainment",
+      "SM Entertainment",
+      "JYP Entertainment",
+      "BIGHIT MUSIC"
+    ],
+    "answer_index": 0,
+    "answer_text": "High Up Entertainment",
+    "topic": "medium:label"
+  },
+  {
+    "question": "Через какое шоу сформировались Monsta X?",
+    "options": [
+      "No.Mercy",
+      "No.Mercy",
+      "Produce 101",
+      "Mix & Match"
+    ],
+    "answer_index": 0,
+    "answer_text": "No.Mercy",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались Wanna One?",
+    "options": [
+      "Produce 101 Season 2",
+      "No.Mercy",
+      "Produce 101",
+      "Mix & Match"
+    ],
+    "answer_index": 0,
+    "answer_text": "Produce 101 Season 2",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались Kep1er?",
+    "options": [
+      "Girls Planet 999",
+      "No.Mercy",
+      "Produce 101",
+      "Mix & Match"
+    ],
+    "answer_index": 0,
+    "answer_text": "Girls Planet 999",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались Winner?",
+    "options": [
+      "WIN: Who Is Next",
+      "No.Mercy",
+      "Produce 101",
+      "Mix & Match"
+    ],
+    "answer_index": 0,
+    "answer_text": "WIN: Who Is Next",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Через какое шоу сформировались iKON?",
+    "options": [
+      "Mix & Match",
+      "No.Mercy",
+      "Produce 101",
+      "Mix & Match"
+    ],
+    "answer_index": 0,
+    "answer_text": "Mix & Match",
+    "topic": "medium:formation_show"
+  },
+  {
+    "question": "Какой из треков принадлежит BTS?",
+    "options": [
+      "Fire",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Fire",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Seventeen?",
+    "options": [
+      "Adore U",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Adore U",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит EXO?",
+    "options": [
+      "Growl",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Growl",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит NCT 127?",
+    "options": [
+      "Cherry Bomb",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Cherry Bomb",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит SHINee?",
+    "options": [
+      "Ring Ding Dong",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Ring Ding Dong",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит GOT7?",
+    "options": [
+      "Hard Carry",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Hard Carry",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Monsta X?",
+    "options": [
+      "Hero",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Hero",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Ateez?",
+    "options": [
+      "Say My Name",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Say My Name",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит Mamamoo?",
+    "options": [
+      "Starry Night",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Starry Night",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Какой из треков принадлежит IVE?",
+    "options": [
+      "Love Dive",
+      "Fire",
+      "Adore U",
+      "Growl"
+    ],
+    "answer_index": 0,
+    "answer_text": "Love Dive",
+    "topic": "medium:group→song"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в BTS?",
+    "options": [
+      "RM",
+      "Jin",
+      "Suga",
+      "Taeyong"
+    ],
+    "answer_index": 3,
+    "answer_text": "Taeyong",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Seventeen?",
+    "options": [
+      "S.Coups",
+      "Woozi",
+      "Mingyu",
+      "Jungkook"
+    ],
+    "answer_index": 3,
+    "answer_text": "Jungkook",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в EXO?",
+    "options": [
+      "Suho",
+      "Kai",
+      "D.O.",
+      "Hongjoong"
+    ],
+    "answer_index": 3,
+    "answer_text": "Hongjoong",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в SHINee?",
+    "options": [
+      "Onew",
+      "Key",
+      "Minho",
+      "Jisung"
+    ],
+    "answer_index": 3,
+    "answer_text": "Jisung",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в GOT7?",
+    "options": [
+      "JB",
+      "Jackson",
+      "BamBam",
+      "Sehun"
+    ],
+    "answer_index": 3,
+    "answer_text": "Sehun",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Monsta X?",
+    "options": [
+      "Shownu",
+      "Hyungwon",
+      "Kihyun",
+      "Leeseo"
+    ],
+    "answer_index": 3,
+    "answer_text": "Leeseo",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Ateez?",
+    "options": [
+      "Hongjoong",
+      "San",
+      "Jongho",
+      "Dino"
+    ],
+    "answer_index": 3,
+    "answer_text": "Dino",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в Mamamoo?",
+    "options": [
+      "Solar",
+      "Moonbyul",
+      "Hwasa",
+      "Wonyoung"
+    ],
+    "answer_index": 3,
+    "answer_text": "Wonyoung",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в IVE?",
+    "options": [
+      "Yujin",
+      "Wonyoung",
+      "Leeseo",
+      "Hwasa"
+    ],
+    "answer_index": 3,
+    "answer_text": "Hwasa",
+    "topic": "medium:odd_one_out"
+  },
+  {
+    "question": "Кто из ниже перечисленных НЕ состоит в STAYC?",
+    "options": [
+      "Sumin",
+      "Sieun",
+      "J",
+      "Kai"
+    ],
+    "answer_index": 3,
+    "answer_text": "Kai",
+    "topic": "medium:odd_one_out"
+  }
 ]
