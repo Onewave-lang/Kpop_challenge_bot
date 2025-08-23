@@ -1445,9 +1445,10 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         masked = make_unique_mask_for_group_member(member, ALL_GROUPS[group_key])
 
         await query.edit_message_reply_markup(reply_markup=None)
-        img = fetch_dropbox_image(member)
-        if img:
-            await query.message.reply_photo(BytesIO(img))
+        imgs = fetch_dropbox_images(member)
+        if imgs:
+            media = [InputMediaPhoto(BytesIO(i)) for i in imgs[:10]]
+            await query.message.reply_media_group(media)
         await query.message.reply_text(
             f"Группа: {correct_grnames[group_key]}\n"
             f"Угадайте участника: <code>{masked}</code>\n\n"
@@ -1684,9 +1685,10 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         masked = make_unique_mask_for_group_member(next_member, ALL_GROUPS[group_key])  # type: ignore
         await update.message.reply_text(feedback)
-        img = fetch_dropbox_image(next_member)
-        if img:
-            await update.message.reply_photo(BytesIO(img))
+        imgs = fetch_dropbox_images(next_member)
+        if imgs:
+            media = [InputMediaPhoto(BytesIO(i)) for i in imgs[:10]]
+            await update.message.reply_media_group(media)
         await update.message.reply_text(
             f"Группа: {title}\n"
             f"Следующий участник: <code>{masked}</code>",
