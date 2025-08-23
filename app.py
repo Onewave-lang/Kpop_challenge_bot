@@ -418,15 +418,6 @@ def back_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")]])
 
 
-def upload_success_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура после успешной загрузки фото."""
-    return InlineKeyboardMarkup(
-        [
-            [InlineKeyboardButton("📁 В каталог фото", callback_data="menu_catalog")],
-            [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
-        ]
-    )
-
 def in_game_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("🏁 Прервать игру", callback_data="menu_back")]])
 
@@ -437,8 +428,10 @@ CB_UPLOAD_MORE = "upload_more"       # добавить ещё фото
 
 
 def upload_success_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура после успешной загрузки фото."""
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("Добавить ещё фото", callback_data=CB_UPLOAD_MORE)],
+        [InlineKeyboardButton("📁 В каталог фото", callback_data="menu_catalog")],
         [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
     ])
 
