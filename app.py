@@ -417,6 +417,16 @@ def menu_keyboard() -> InlineKeyboardMarkup:
 def back_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")]])
 
+
+def upload_success_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура после успешной загрузки фото."""
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("📁 В каталог фото", callback_data="menu_catalog")],
+            [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
+        ]
+    )
+
 def in_game_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[InlineKeyboardButton("🏁 Прервать игру", callback_data="menu_back")]])
 
@@ -1509,7 +1519,7 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 if update.effective_user:
                     register_user_upload(update.effective_user.id)
                 await update.message.reply_text(
-                    "Фото успешно загружено!", reply_markup=back_keyboard()
+                    "Фото успешно загружено!", reply_markup=upload_success_keyboard()
                 )
             else:
                 await update.message.reply_text(
