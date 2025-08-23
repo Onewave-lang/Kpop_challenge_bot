@@ -1406,18 +1406,23 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             return
         members = ALL_GROUPS[group_key]
         lines = [f"{correct_grnames[group_key]}: {', '.join(members)}"]
-        text = "Состав группы:\n\n" + "\n".join(lines)
-        await query.edit_message_text(
-            text,
-            reply_markup=learn_after_list_keyboard(group_key),
-        )
+
         media: List[InputMediaPhoto] = []
         for m in members:
             img = fetch_dropbox_image(m)
             if img:
                 media.append(InputMediaPhoto(BytesIO(img), caption=m))
+
+        # Сначала отправляем галерею, затем текст с составом
+        await query.edit_message_reply_markup(reply_markup=None)
         if media:
             await query.message.reply_media_group(media[:10])
+
+        text = "Состав группы:\n\n" + "\n".join(lines)
+        await query.message.reply_text(
+            text,
+            reply_markup=learn_after_list_keyboard(group_key),
+        )
         return
 
     # === Режим обучения: начать тренировку по группе
@@ -1438,16 +1443,18 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             )
             return
         masked = make_unique_mask_for_group_member(member, ALL_GROUPS[group_key])
-        await query.edit_message_text(
+
+        await query.edit_message_reply_markup(reply_markup=None)
+        img = fetch_dropbox_image(member)
+        if img:
+            await query.message.reply_photo(BytesIO(img))
+        await query.message.reply_text(
             f"Группа: {correct_grnames[group_key]}\n"
             f"Угадайте участника: <code>{masked}</code>\n\n"
             f"(введите имя сообщением)",
             parse_mode="HTML",
             reply_markup=learn_in_session_keyboard(),
         )
-        img = fetch_dropbox_image(member)
-        if img:
-            await query.message.reply_photo(BytesIO(img), caption="Кто это?")
         return
 
     # === Режим обучения: явный выход
@@ -1676,15 +1683,16 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             return
 
         masked = make_unique_mask_for_group_member(next_member, ALL_GROUPS[group_key])  # type: ignore
+        await update.message.reply_text(feedback)
+        img = fetch_dropbox_image(next_member)
+        if img:
+            await update.message.reply_photo(BytesIO(img))
         await update.message.reply_text(
-            f"{feedback}\n\nГруппа: {title}\n"
+            f"Группа: {title}\n"
             f"Следующий участник: <code>{masked}</code>",
             parse_mode="HTML",
             reply_markup=learn_in_session_keyboard(),
         )
-        img = fetch_dropbox_image(next_member)
-        if img:
-            await update.message.reply_photo(BytesIO(img), caption="Кто это?")
         return
 
     # --- По умолчанию: показать меню
