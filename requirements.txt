@@ -5,4 +5,3 @@ pydantic==2.7.0
 pytest>=8.0.0
 dropbox==11.36.0
 setuptools>=65
-requests>=2.31.0

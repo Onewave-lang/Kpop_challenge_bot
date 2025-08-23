@@ -4,7 +4,6 @@ import logging
 import os
 import random
 import re
-import time
 from contextlib import asynccontextmanager
 from datetime import date
 from http import HTTPStatus
@@ -12,14 +11,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 
-try:  # pragma: no cover - requests might be missing during tests
-    import requests  # type: ignore
-except Exception:  # pragma: no cover - used only when requests missing
-    class _RequestsModule:
-        def get(self, *args, **kwargs):  # pragma: no cover - network disabled
-            raise RuntimeError("requests library not installed")
-
-    requests = _RequestsModule()  # type: ignore
 
 try:
     from fastapi import FastAPI, Request, Response
@@ -279,49 +270,6 @@ def load_quiz_questions(path: str = QUIZ_FILE) -> List[Dict[str, str]]:
 
 QUIZ_POOL: List[Dict[str, str]] = load_quiz_questions()
 
-# Endpoint providing random K-pop true/false facts.
-# The API at kpop-facts-api.vercel.app aggregates data from Wikipedia and
-# official fan databases and documents a recommended limit of one request per
-# second.  ``fetch_tf_statement`` implements that limit and provides basic error
-# handling so the bot can operate offline using mocked responses in tests.
-TF_API_URL = "https://kpop-facts-api.vercel.app/random?type=tf"
-TF_RATE_LIMIT_SECONDS = 1.0
-_tf_last_call = 0.0
-
-
-def fetch_tf_statement() -> Tuple[str, bool]:
-    """Return a random K-pop statement and whether it is true.
-
-    The data is retrieved from ``TF_API_URL`` which returns JSON in the form
-    ``{"statement": "text", "is_true": true}``.
-    ``RuntimeError`` is raised when the request fails or the data is
-    malformed.  Calls are rate limited according to ``TF_RATE_LIMIT_SECONDS``.
-    """
-
-    global _tf_last_call
-
-    # Enforce simple rate limiting recommended by the data provider.
-    elapsed = time.time() - _tf_last_call
-    if elapsed < TF_RATE_LIMIT_SECONDS:
-        time.sleep(TF_RATE_LIMIT_SECONDS - elapsed)
-
-    try:
-        resp = requests.get(TF_API_URL, timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as exc:
-        logging.error("TF API request failed: %s", exc)
-        raise RuntimeError("tf_api_request_failed") from exc
-
-    statement = data.get("statement") or data.get("fact")
-    truth = data.get("is_true") if "is_true" in data else data.get("truth")
-    if not statement or truth is None:
-        logging.error("TF API returned invalid data: %s", data)
-        raise RuntimeError("tf_api_invalid_data")
-
-    _tf_last_call = time.time()
-    return statement, bool(truth)
-
 
 def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, List[str]]:
     """Обходит локальную синхронизацию Dropbox и строит карту
@@ -480,7 +428,6 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("7. Режим обучения", "menu_learn"),
         ("8. Каталог фото", "menu_catalog"),
         ("9. [адм.] Добавить фото", "menu_upload"),
-        ("10. Правда или ложь", "menu_true_false"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -793,27 +740,6 @@ def start_quiz(context: ContextTypes.DEFAULT_TYPE) -> bool:
         "total": sample_size,
     }
     return True
-
-
-def start_true_false_quiz(context: ContextTypes.DEFAULT_TYPE) -> bool:
-    """Запускает квиз «Правда или ложь» с использованием внешнего API."""
-
-    try:
-        statement, truth = fetch_tf_statement()
-    except Exception:
-        # При любых проблемах с API возвращаем False, чтобы вызывающий код мог
-        # отреагировать и сообщить пользователю об ошибке.
-        return False
-
-    context.user_data["mode"] = "true_false"
-    context.user_data["true_false"] = {
-        "statement": statement,
-        "answer": truth,
-        "score": 0,
-    }
-    return True
-
-
 def next_quiz_question(context: ContextTypes.DEFAULT_TYPE) -> Optional[Dict[str, str]]:
     """Возвращает следующий вопрос квиза."""
     g = context.user_data.get("quiz", {})
@@ -1288,25 +1214,6 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             await ask_quiz_question(query.message, q, prefix="Вопрос 1:\n")
         return
 
-    # --- Квиз "Правда или ложь"
-    if data == "menu_true_false":
-        try:
-            await query.edit_message_reply_markup(reply_markup=None)
-        except Exception:
-            pass
-        ok = start_true_false_quiz(context)
-        if not ok:
-            await query.message.reply_text(
-                "Факты недоступны.", reply_markup=back_keyboard()
-            )
-            return
-        tf = context.user_data.get("true_false", {})
-        stmt = tf.get("statement", "")
-        await query.message.reply_text(
-            f"Правда или ложь:\n{stmt}", reply_markup=in_game_keyboard()
-        )
-        return
-
     # --- Каталог фото
     if data == "menu_catalog":
         reset_state(context)
@@ -1563,47 +1470,6 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 break
         else:
             await update.message.reply_text("Такой участник не найден", reply_markup=back_keyboard())
-        return
-
-    # --- Квиз "Правда или ложь"
-    if mode == "true_false":
-        tf = context.user_data.get("true_false", {})
-        answer = tf.get("answer")
-        mapping = {
-            "правда": True,
-            "истина": True,
-            "да": True,
-            "true": True,
-            "ложь": False,
-            "неправда": False,
-            "нет": False,
-            "false": False,
-        }
-        user_text = text.lower()
-        if user_text not in mapping:
-            await update.message.reply_text(
-                "Ответьте 'правда' или 'ложь'.",
-                reply_markup=in_game_keyboard(),
-            )
-            return
-        is_correct = mapping[user_text] == answer
-        feedback = "Верно!" if is_correct else "Неверно!"
-        if is_correct:
-            tf["score"] = tf.get("score", 0) + 1
-        try:
-            statement, truth = fetch_tf_statement()
-        except Exception:
-            await update.message.reply_text(
-                f"{feedback}\nФакты недоступны.", reply_markup=back_keyboard()
-            )
-            reset_state(context)
-            return
-        tf["statement"] = statement
-        tf["answer"] = truth
-        context.user_data["true_false"] = tf
-        await update.message.reply_text(
-            f"{feedback}\nСледующий факт:\n{statement}", reply_markup=in_game_keyboard()
-        )
         return
 
     # --- Квиз на знание k-pop
