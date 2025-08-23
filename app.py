@@ -38,6 +38,7 @@ try:
         Update,
         InlineKeyboardMarkup,
         InlineKeyboardButton,
+        InputMediaPhoto,
     )
     from telegram.ext import (
         Application,
@@ -59,6 +60,11 @@ except Exception:  # pragma: no cover - used only when telegram missing
     class InlineKeyboardMarkup:
         def __init__(self, inline_keyboard):
             self.inline_keyboard = inline_keyboard
+
+    class InputMediaPhoto:
+        def __init__(self, media, caption=None):
+            self.media = media
+            self.caption = caption
 
     class Application:
         @classmethod
@@ -1405,6 +1411,13 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             text,
             reply_markup=learn_after_list_keyboard(group_key),
         )
+        media: List[InputMediaPhoto] = []
+        for m in members:
+            img = fetch_dropbox_image(m)
+            if img:
+                media.append(InputMediaPhoto(BytesIO(img), caption=m))
+        if media:
+            await query.message.reply_media_group(media[:10])
         return
 
     # === Режим обучения: начать тренировку по группе
@@ -1432,6 +1445,9 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             parse_mode="HTML",
             reply_markup=learn_in_session_keyboard(),
         )
+        img = fetch_dropbox_image(member)
+        if img:
+            await query.message.reply_photo(BytesIO(img), caption="Кто это?")
         return
 
     # === Режим обучения: явный выход
@@ -1666,6 +1682,9 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             parse_mode="HTML",
             reply_markup=learn_in_session_keyboard(),
         )
+        img = fetch_dropbox_image(next_member)
+        if img:
+            await update.message.reply_photo(BytesIO(img), caption="Кто это?")
         return
 
     # --- По умолчанию: показать меню
