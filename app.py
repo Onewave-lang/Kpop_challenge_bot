@@ -254,6 +254,22 @@ def _load_cover_image_bytes() -> bytes:
 COVER_IMAGE_BYTES: bytes = _load_cover_image_bytes()
 
 
+QUIZ_FILE = "kpop_quiz.json"
+
+
+def load_quiz_questions(path: str = QUIZ_FILE) -> List[Dict[str, str]]:
+    """Загружает список вопросов квиза из ``path``."""
+    file = Path(path)
+    if not file.exists():
+        return []
+    with file.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, list) else []
+
+
+QUIZ_POOL: List[Dict[str, str]] = load_quiz_questions()
+
+
 def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, List[str]]:
     """Обходит локальную синхронизацию Dropbox и строит карту
     ``нормализованное имя участника -> относительный путь к файлу``.
@@ -405,11 +421,12 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("1. Угадай группу (базовый уровень)", "menu_play"),
         ("2. Угадай группу (ИИ)", "menu_ai_play"),
         ("3. Угадай по фото", "menu_photo"),
-        ("4. Показать все группы", "menu_show_all"),
-        ("5. Найти участника", "menu_find_member"),
-        ("6. Режим обучения", "menu_learn"),
-        ("7. Каталог фото", "menu_catalog"),
-        ("[адм.] Добавить фото", "menu_upload"),
+        ("4. Квиз на знание k-pop", "menu_quiz"),
+        ("5. Показать все группы", "menu_show_all"),
+        ("6. Найти участника", "menu_find_member"),
+        ("7. Режим обучения", "menu_learn"),
+        ("8. Каталог фото", "menu_catalog"),
+        ("9. [адм.] Добавить фото", "menu_upload"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -621,12 +638,19 @@ def save_user_photo(group_key: str, member: str, data: bytes, suffix: str) -> bo
 # =======================
 # user_data схема:
 # {
-#   "mode": "idle" | "find" | "game" | "learn_menu" | "learn_train",
+#   "mode": "idle" | "find" | "game" | "learn_menu" | "learn_train" | "quiz",
 #   "game": {
 #       "members": list[str],
 #       "index": int,
 #       "score": int,
 #       "current_member": str | None
+#   },
+#   "quiz": {
+#       "questions": list[dict],
+#       "index": int,
+#       "score": int,
+#       "current": dict | None,
+#       "total": int,
 #   },
 #   "learn": {
 #       "group_key": str,
@@ -698,6 +722,47 @@ def fetch_dropbox_image(name: str) -> Optional[bytes]:
     if not images:
         return None
     return random.choice(images)
+
+
+def start_quiz(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    """Инициализирует квиз по k-pop."""
+    if not QUIZ_POOL:
+        return False
+    sample_size = min(10, len(QUIZ_POOL))
+    questions = random.sample(QUIZ_POOL, sample_size)
+    context.user_data["mode"] = "quiz"
+    context.user_data["quiz"] = {
+        "questions": questions,
+        "index": 0,
+        "score": 0,
+        "current": None,
+        "total": sample_size,
+    }
+    return True
+
+
+def next_quiz_question(context: ContextTypes.DEFAULT_TYPE) -> Optional[Dict[str, str]]:
+    """Возвращает следующий вопрос квиза."""
+    g = context.user_data.get("quiz", {})
+    idx: int = g.get("index", 0)
+    questions: List[Dict[str, str]] = g.get("questions", [])
+    if idx >= len(questions):
+        return None
+    q = questions[idx]
+    g["current"] = q
+    context.user_data["quiz"] = g
+    return q
+
+
+async def ask_quiz_question(msg, question: Dict[str, str], prefix: str = "") -> None:
+    """Отправляет пользователю вопрос квиза, при наличии иллюстрации."""
+    text = f"{prefix}{question['question']}"
+    idol = question.get("idol")
+    img = fetch_dropbox_image(idol) if idol else None
+    if img:
+        await msg.reply_photo(BytesIO(img), caption=text, reply_markup=in_game_keyboard())
+    else:
+        await msg.reply_text(text, reply_markup=in_game_keyboard())
 
 
 def start_photo_game(context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -1130,6 +1195,26 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await launch_photo_game(query, context)
         return
 
+    # --- Квиз на знание k-pop
+    if data == "menu_quiz":
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        ok = start_quiz(context)
+        if not ok:
+            await query.message.reply_text(
+                "Вопросы квиза недоступны.", reply_markup=back_keyboard()
+            )
+            return
+        q = next_quiz_question(context)
+        if q:
+            await query.message.reply_text(
+                "Квиз на знание k-pop!", reply_markup=in_game_keyboard()
+            )
+            await ask_quiz_question(query.message, q, prefix="Вопрос 1:\n")
+        return
+
     # --- Каталог фото
     if data == "menu_catalog":
         reset_state(context)
@@ -1386,6 +1471,52 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 break
         else:
             await update.message.reply_text("Такой участник не найден", reply_markup=back_keyboard())
+        return
+
+    # --- Квиз на знание k-pop
+    if mode == "quiz":
+        g = context.user_data.get("quiz", {})
+        current = g.get("current")
+        if current is None:
+            q = next_quiz_question(context)
+            if q is None:
+                score = g.get("score", 0)
+                total = g.get("total", 0)
+                await update.message.reply_text(
+                    f"Квиз завершён! Ты ответил правильно на {score} из {total}.",
+                    reply_markup=back_keyboard(),
+                )
+                reset_state(context)
+            else:
+                await ask_quiz_question(update.message, q)
+            return
+
+        is_correct = text.lower() == current.get("answer", "").lower()
+        feedback = "Верно!" if is_correct else "Неверно!"
+        if is_correct:
+            g["score"] = g.get("score", 0) + 1
+        g["index"] = g.get("index", 0) + 1
+        context.user_data["quiz"] = g
+        stats = progress_text(g)
+        next_q = next_quiz_question(context)
+        if next_q is None:
+            score = g.get("score", 0)
+            total = g.get("total", 0)
+            final = f"Квиз завершён! Ты ответил правильно на {score} из {total}."
+            if score < total:
+                final += (
+                    "\nЧто ж, не все удалось идеально. Попробуй запросить у ChatGPT "
+                    "информацию по тем вопросам, на которые ты не смог ответить правильно 😉"
+                )
+            await update.message.reply_text(
+                f"{feedback}\n{stats}\n\n{final}", reply_markup=back_keyboard()
+            )
+            reset_state(context)
+        else:
+            await update.message.reply_text(
+                f"{feedback}\n{stats}", reply_markup=in_game_keyboard()
+            )
+            await ask_quiz_question(update.message, next_q, prefix="Следующий вопрос:\n")
         return
 
     # --- Игра «Угадай группу»
