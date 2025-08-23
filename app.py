@@ -4,12 +4,22 @@ import logging
 import os
 import random
 import re
+import time
 from contextlib import asynccontextmanager
 from datetime import date
 from http import HTTPStatus
 from io import BytesIO
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
+
+try:  # pragma: no cover - requests might be missing during tests
+    import requests  # type: ignore
+except Exception:  # pragma: no cover - used only when requests missing
+    class _RequestsModule:
+        def get(self, *args, **kwargs):  # pragma: no cover - network disabled
+            raise RuntimeError("requests library not installed")
+
+    requests = _RequestsModule()  # type: ignore
 
 try:
     from fastapi import FastAPI, Request, Response
@@ -268,6 +278,49 @@ def load_quiz_questions(path: str = QUIZ_FILE) -> List[Dict[str, str]]:
 
 
 QUIZ_POOL: List[Dict[str, str]] = load_quiz_questions()
+
+# Endpoint providing random K-pop true/false facts.
+# The API at kpop-facts-api.vercel.app aggregates data from Wikipedia and
+# official fan databases and documents a recommended limit of one request per
+# second.  ``fetch_tf_statement`` implements that limit and provides basic error
+# handling so the bot can operate offline using mocked responses in tests.
+TF_API_URL = "https://kpop-facts-api.vercel.app/random?type=tf"
+TF_RATE_LIMIT_SECONDS = 1.0
+_tf_last_call = 0.0
+
+
+def fetch_tf_statement() -> Tuple[str, bool]:
+    """Return a random K-pop statement and whether it is true.
+
+    The data is retrieved from ``TF_API_URL`` which returns JSON in the form
+    ``{"statement": "text", "is_true": true}``.
+    ``RuntimeError`` is raised when the request fails or the data is
+    malformed.  Calls are rate limited according to ``TF_RATE_LIMIT_SECONDS``.
+    """
+
+    global _tf_last_call
+
+    # Enforce simple rate limiting recommended by the data provider.
+    elapsed = time.time() - _tf_last_call
+    if elapsed < TF_RATE_LIMIT_SECONDS:
+        time.sleep(TF_RATE_LIMIT_SECONDS - elapsed)
+
+    try:
+        resp = requests.get(TF_API_URL, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as exc:
+        logging.error("TF API request failed: %s", exc)
+        raise RuntimeError("tf_api_request_failed") from exc
+
+    statement = data.get("statement") or data.get("fact")
+    truth = data.get("is_true") if "is_true" in data else data.get("truth")
+    if not statement or truth is None:
+        logging.error("TF API returned invalid data: %s", data)
+        raise RuntimeError("tf_api_invalid_data")
+
+    _tf_last_call = time.time()
+    return statement, bool(truth)
 
 
 def _scan_dropbox_photos(root: Path = Path(DROPBOX_ROOT) / "kpop_images") -> Dict[str, List[str]]:
@@ -737,6 +790,25 @@ def start_quiz(context: ContextTypes.DEFAULT_TYPE) -> bool:
         "score": 0,
         "current": None,
         "total": sample_size,
+    }
+    return True
+
+
+def start_true_false_quiz(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    """Запускает квиз «Правда или ложь» с использованием внешнего API."""
+
+    try:
+        statement, truth = fetch_tf_statement()
+    except Exception:
+        # При любых проблемах с API возвращаем False, чтобы вызывающий код мог
+        # отреагировать и сообщить пользователю об ошибке.
+        return False
+
+    context.user_data["mode"] = "true_false"
+    context.user_data["true_false"] = {
+        "statement": statement,
+        "answer": truth,
+        "score": 0,
     }
     return True
 
