@@ -480,6 +480,7 @@ def menu_keyboard() -> InlineKeyboardMarkup:
         ("7. Режим обучения", "menu_learn"),
         ("8. Каталог фото", "menu_catalog"),
         ("9. [адм.] Добавить фото", "menu_upload"),
+        ("10. Правда или ложь", "menu_true_false"),
     ]
     kb = [[InlineKeyboardButton(text, callback_data=cb)] for text, cb in entries]
     return InlineKeyboardMarkup(kb)
@@ -1287,6 +1288,25 @@ async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             await ask_quiz_question(query.message, q, prefix="Вопрос 1:\n")
         return
 
+    # --- Квиз "Правда или ложь"
+    if data == "menu_true_false":
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        ok = start_true_false_quiz(context)
+        if not ok:
+            await query.message.reply_text(
+                "Факты недоступны.", reply_markup=back_keyboard()
+            )
+            return
+        tf = context.user_data.get("true_false", {})
+        stmt = tf.get("statement", "")
+        await query.message.reply_text(
+            f"Правда или ложь:\n{stmt}", reply_markup=in_game_keyboard()
+        )
+        return
+
     # --- Каталог фото
     if data == "menu_catalog":
         reset_state(context)
@@ -1543,6 +1563,47 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 break
         else:
             await update.message.reply_text("Такой участник не найден", reply_markup=back_keyboard())
+        return
+
+    # --- Квиз "Правда или ложь"
+    if mode == "true_false":
+        tf = context.user_data.get("true_false", {})
+        answer = tf.get("answer")
+        mapping = {
+            "правда": True,
+            "истина": True,
+            "да": True,
+            "true": True,
+            "ложь": False,
+            "неправда": False,
+            "нет": False,
+            "false": False,
+        }
+        user_text = text.lower()
+        if user_text not in mapping:
+            await update.message.reply_text(
+                "Ответьте 'правда' или 'ложь'.",
+                reply_markup=in_game_keyboard(),
+            )
+            return
+        is_correct = mapping[user_text] == answer
+        feedback = "Верно!" if is_correct else "Неверно!"
+        if is_correct:
+            tf["score"] = tf.get("score", 0) + 1
+        try:
+            statement, truth = fetch_tf_statement()
+        except Exception:
+            await update.message.reply_text(
+                f"{feedback}\nФакты недоступны.", reply_markup=back_keyboard()
+            )
+            reset_state(context)
+            return
+        tf["statement"] = statement
+        tf["answer"] = truth
+        context.user_data["true_false"] = tf
+        await update.message.reply_text(
+            f"{feedback}\nСледующий факт:\n{statement}", reply_markup=in_game_keyboard()
+        )
         return
 
     # --- Квиз на знание k-pop

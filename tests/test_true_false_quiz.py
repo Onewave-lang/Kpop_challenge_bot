@@ -1,5 +1,7 @@
 import pytest
 import app
+import asyncio
+from types import SimpleNamespace
 
 
 class DummyContext:
@@ -58,3 +60,30 @@ def test_start_true_false_quiz_failure(monkeypatch):
     monkeypatch.setattr(app, "fetch_tf_statement", boom)
     assert app.start_true_false_quiz(ctx) is False
     assert "true_false" not in ctx.user_data
+
+
+def test_menu_keyboard_contains_true_false():
+    kb = app.menu_keyboard()
+    callbacks = [btn.callback_data for row in kb.inline_keyboard for btn in row]
+    assert "menu_true_false" in callbacks
+
+
+def test_true_false_flow(monkeypatch):
+    facts = iter([
+        ("First", True),
+        ("Second", False),
+    ])
+    monkeypatch.setattr(app, "fetch_tf_statement", lambda: next(facts))
+    ctx = DummyContext()
+    assert app.start_true_false_quiz(ctx)
+
+    messages = []
+
+    class DummyMessage:
+        async def reply_text(self, text, **kwargs):
+            messages.append(text)
+
+    update = SimpleNamespace(message=SimpleNamespace(text="правда", reply_text=DummyMessage().reply_text))
+    asyncio.run(app.on_text(update, ctx))
+    assert any("Верно" in m for m in messages)
+    assert ctx.user_data["true_false"]["statement"] == "Second"
