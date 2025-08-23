@@ -425,7 +425,8 @@ CB_UPLOAD_GROUP = "upload_group:"    # выбор группы для загру
 CB_UPLOAD_MEMBER = "upload_member:"  # выбор участника для загрузки
 CB_UPLOAD_MORE = "upload_more"       # добавить ещё фото
 
-def upload_more_keyboard() -> InlineKeyboardMarkup:
+
+def upload_success_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("Добавить ещё фото", callback_data=CB_UPLOAD_MORE)],
         [InlineKeyboardButton("⬅️ Назад в меню", callback_data="menu_back")],
@@ -1570,7 +1571,7 @@ async def on_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 if update.effective_user:
                     register_user_upload(update.effective_user.id)
                 await update.message.reply_text(
-                    "Фото успешно загружено!", reply_markup=upload_more_keyboard()
+                    "Фото успешно загружено!", reply_markup=upload_success_keyboard()
                 )
             else:
                 await update.message.reply_text(
